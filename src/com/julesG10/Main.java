@@ -17,18 +17,18 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class Main {
 
     private long window;
-    private Size size = new Size(400,400);
-    private final String TITLE = "Open Battles";
+    private Size size;
+    private GLFWVidMode glfwVidMode;
+    public static final String TITLE = "Open Battles";
 
     public void run() {
         if(this.init())
         {
             this.loop();
+
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
-
             glfwTerminate();
-            Objects.requireNonNull(glfwSetErrorCallback(null)).free();
         }
     }
 
@@ -43,19 +43,22 @@ public class Main {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_CURSOR_HIDDEN,GLFW_TRUE);
 
+        long monitor = glfwGetPrimaryMonitor();
+        this.glfwVidMode = glfwGetVideoMode(monitor);
 
-        window = glfwCreateWindow(this.size.width, this.size.height, this.TITLE, NULL, NULL);
-        if ( window == NULL )
+        glfwWindowHint(GLFW_RED_BITS, this.glfwVidMode.redBits());
+        glfwWindowHint(GLFW_GREEN_BITS, this.glfwVidMode.greenBits());
+        glfwWindowHint(GLFW_BLUE_BITS, this.glfwVidMode.blueBits());
+        glfwWindowHint(GLFW_REFRESH_RATE, this.glfwVidMode.refreshRate());
+        this.size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height());
+
+        window = glfwCreateWindow(this.size.width, this.size.height,TITLE, monitor, NULL);
+
+        if (window == NULL)
         {
             return false;
         }
-
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-            {
-                glfwSetWindowShouldClose(window, true);
-            }
-        });
+        glfwSetWindowMonitor(window,monitor,0,0,this.size.width,this.size.height,this.glfwVidMode.refreshRate());
 
         try ( MemoryStack stack = stackPush() ) {
             IntBuffer pWidth = stack.mallocInt(1);
@@ -76,23 +79,56 @@ public class Main {
     }
 
     private void loop() {
-        GL.createCapabilities();
+        Game game = new Game(this.window);
+        game.start();
 
-        float deltatime =0;
-        long start= System.nanoTime();
+        GL.createCapabilities();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if(!glIsEnabled(GL_TEXTURE_2D))
+        {
+            glEnable(GL_TEXTURE_2D);
+        }
+        Texture test = new Texture("C:/jules-dev/release/Tamagotchi/Tamagotchi/x64/Release/assets/backgrounds/ground_0.png");
+
+        float tileSize = 0.2f;
+
+
+        Timer timer = new Timer();
 
         while ( !glfwWindowShouldClose(window) )
         {
-            deltatime = (float) ((System.nanoTime() - start) * Math.pow(10,-9));
-            start = System.nanoTime();
+            glfwPollEvents();
+            float deltatime = timer.restart();
 
-            glfwSetWindowTitle(window,this.TITLE+" "+String.valueOf(1.0/deltatime)+" FPS");
-
-            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+            if(test.isValid()) {
+                test.bind();
+
+                glBegin(GL_QUADS);
+
+                glTexCoord2f(0, 0);
+                glVertex2f(-(tileSize), (tileSize));
+
+
+                glTexCoord2f(1, 0);
+                glVertex2f((tileSize), (tileSize));
+
+                glTexCoord2f(1, 1);
+                glVertex2f((tileSize), -(tileSize));
+
+
+                glTexCoord2f(0, 1);
+                glVertex2f(-(tileSize), -(tileSize));
+
+                glEnd();
+            }
+
             glfwSwapBuffers(window);
-            glfwPollEvents();
+
+            System.out.print("\r"+String.valueOf(1.0/deltatime));
         }
     }
 
@@ -100,4 +136,13 @@ public class Main {
         new Main().run();
     }
 
+
+    /*
+     glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+            {
+                glfwSetWindowShouldClose(window, true);
+            }
+        });
+    */
 }
