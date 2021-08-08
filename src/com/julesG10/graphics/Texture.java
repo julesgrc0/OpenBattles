@@ -1,5 +1,6 @@
-package com.julesG10;
+package com.julesG10.graphics;
 
+import com.julesG10.Size;
 import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;
