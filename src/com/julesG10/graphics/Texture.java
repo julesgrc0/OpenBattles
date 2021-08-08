@@ -1,6 +1,7 @@
 package com.julesG10.graphics;
 
-import com.julesG10.Size;
+import com.julesG10.utils.Size;
+import com.julesG10.utils.Vector2;
 import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;
@@ -54,32 +55,56 @@ public class Texture {
         }
     }
 
-    public void bind()
-    {
-        glBindTexture(GL_TEXTURE_2D,this.id);
+    public void bind() {
+        glBindTexture(GL_TEXTURE_2D, this.id);
     }
 
     public void unbind() {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    public Size getSize()
-    {
-        return  this.size;
+    public void render(Vector2 position, Size size, float angle) {
+        if (this.isValid()) {
+            this.bind();
+            glPushMatrix();
+            glTranslatef(position.x, position.y, 0);
+            glRotatef(angle, 0, 0, 1);
+            glBegin(GL_QUADS);
+
+            glTexCoord2f(0, 0);
+            glVertex2f(0, 0);
+
+
+            glTexCoord2f(1, 0);
+            glVertex2f(size.width, 0);
+
+            glTexCoord2f(1, 1);
+            glVertex2f(size.width, size.height);
+
+
+            glTexCoord2f(0, 1);
+            glVertex2f(0, size.height);
+
+            glEnd();
+            glPopMatrix();
+
+            this.unbind();
+        }
     }
 
-    public ByteBuffer getPixels()
-    {
+    public Size getSize() {
+        return this.size;
+    }
+
+    public ByteBuffer getPixels() {
         return this.pixels;
     }
 
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return this.valid;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return this.id;
     }
 }

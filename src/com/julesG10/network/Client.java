@@ -1,56 +1,64 @@
 package com.julesG10.network;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.concurrent.ExecutionException;
 
-public class NetClient {
+public class Client {
 
-    public String adress;
+    public String hostname;
     public int port;
     public Socket client;
+    public boolean connected = false;
 
-    public NetClient(String address, int port) {
-        this.adress = address;
+    public Client(String hostname, int port) {
+        this.hostname = hostname;
         this.port = port;
     }
 
-    public boolean connect() {
+    public boolean connect(int timeout) {
         try {
-            this.client = new Socket(this.adress, this.port);
-            return true;
-        } catch (IOException ignored) {
-        }
-        return false;
-    }
-
-    public String recieve() {
-        try {
-            InputStream input = this.client.getInputStream();
-            InputStreamReader reader = new InputStreamReader(input);
-
-            int character;
-            StringBuilder data = new StringBuilder();
-            while ((character = reader.read()) != -1) {
-                data.append((char) character);
-            }
-
-            return data.toString();
-        } catch (IOException ignored) {
-            return null;
-        }
-    }
-
-    public boolean send(String data) {
-        try {
-            OutputStream output = this.client.getOutputStream();
-            OutputStreamWriter writer = new OutputStreamWriter(output);
-            writer.write(data);
-            writer.close();
+            this.client = new Socket();
+            this.client.connect(new InetSocketAddress(this.hostname, this.port), timeout);
+            this.connected = true;
             return true;
         } catch (IOException ignored) {
             return false;
         }
+    }
+
+    public String recieve() {
+        if (this.connected) {
+            try {
+                InputStream input = this.client.getInputStream();
+                InputStreamReader reader = new InputStreamReader(input);
+
+                int character;
+                StringBuilder data = new StringBuilder();
+                while ((character = reader.read()) != -1) {
+                    data.append((char) character);
+                }
+
+                return data.toString();
+            } catch (IOException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public boolean send(String data) {
+        if (this.connected) {
+            try {
+                OutputStream output = this.client.getOutputStream();
+                OutputStreamWriter writer = new OutputStreamWriter(output);
+                writer.write(data);
+                writer.close();
+                return true;
+            } catch (IOException ignored) {
+                return false;
+            }
+        }
+        return false;
     }
 }

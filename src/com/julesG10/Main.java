@@ -1,12 +1,14 @@
 package com.julesG10;
 
+import com.julesG10.graphics.Texture;
+import com.julesG10.utils.Size;
+import com.julesG10.utils.Timer;
+import com.julesG10.utils.Vector2;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
-import java.io.IOException;
 import java.nio.*;
-import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -28,8 +30,9 @@ public class Main {
 
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
-            glfwTerminate();
         }
+
+        glfwTerminate();
     }
 
     private boolean init() {
@@ -84,46 +87,90 @@ public class Main {
 
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glViewport(0, 0, this.size.width,this.size.height);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        glOrtho(0,this.size.width,this.size.height,0,1,-1);
+        glMatrixMode(GL_MODELVIEW);
+
+        if(!glIsEnabled(GL_BLEND))
+        {
+            glEnable(GL_BLEND);
+        }
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         if(!glIsEnabled(GL_TEXTURE_2D))
         {
             glEnable(GL_TEXTURE_2D);
         }
-        Texture test = new Texture("C:/jules-dev/release/Tamagotchi/Tamagotchi/x64/Release/assets/backgrounds/ground_0.png");
 
-        float tileSize = 0.2f;
 
+        Texture[] test = new Texture[]{
+                new Texture("C:/jules-dev/release/Tamagotchi/Tamagotchi/x64/Release/assets/backgrounds/ground_0.png"),
+                new Texture("C:/jules-dev/release/Tamagotchi/Tamagotchi/x64/Release/assets/backgrounds/ground_1.png"),
+                new Texture("C:/jules-dev/release/Tamagotchi/Tamagotchi/x64/Release/assets/backgrounds/ground_2.png")
+        };
+        int i=0;
+        float time=0;
+        float angle = 0;
+        int tileCountH  =  10;//this.size.height/test[0].getSize().height;
+        int tileCountW = 12;//this.size.width/test[0].getSize().width;
+        Size tileSize = new Size(this.size.width/tileCountW,this.size.height/tileCountH);
 
         Timer timer = new Timer();
-
+        float cam_x = 0,cam_y = 0;
         while ( !glfwWindowShouldClose(window) )
         {
             glfwPollEvents();
             float deltatime = timer.restart();
+            time += deltatime*1000;
 
+
+            if(glfwGetKey(window,GLFW_KEY_LEFT) == GLFW_TRUE)
+            {
+                cam_x -= deltatime * 80;
+            }
+
+            if(glfwGetKey(window,GLFW_KEY_RIGHT) == GLFW_TRUE)
+            {
+                cam_x += deltatime * 80;
+            }
+
+            if(glfwGetKey(window,GLFW_KEY_UP) == GLFW_TRUE)
+            {
+                cam_y -= deltatime * 80;
+            }
+
+            if(glfwGetKey(window,GLFW_KEY_DOWN) == GLFW_TRUE)
+            {
+                cam_y += deltatime * 80;
+            }
+            angle+=deltatime * 10f;
+            if(angle >= 360)
+            {
+                angle = 0;
+            }
+
+            if(time > 100)
+            {
+               
+                time=0;
+                i++;
+                if(i>=test.length)
+                {
+                    i=0;
+                }
+            }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            for (int x=0;x<tileCountW;x++)
+            {
+                for(int y=0;y<tileCountH;y++)
+                {
 
-            if(test.isValid()) {
-                test.bind();
-
-                glBegin(GL_QUADS);
-
-                glTexCoord2f(0, 0);
-                glVertex2f(-(tileSize), (tileSize));
-
-
-                glTexCoord2f(1, 0);
-                glVertex2f((tileSize), (tileSize));
-
-                glTexCoord2f(1, 1);
-                glVertex2f((tileSize), -(tileSize));
-
-
-                glTexCoord2f(0, 1);
-                glVertex2f(-(tileSize), -(tileSize));
-
-                glEnd();
+                    test[i].render(new Vector2(x*tileSize.width + cam_x,y*tileSize.height+cam_y),tileSize,angle);
+                }
             }
 
             glfwSwapBuffers(window);
