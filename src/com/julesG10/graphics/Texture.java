@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
 public class Texture {
     private Size size;
@@ -41,14 +42,18 @@ public class Texture {
             pixels.flip();
 
             this.id = glGenTextures();
-            glBindTexture(GL_TEXTURE_2D, this.id);
+           this.bind();
 
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.size.width, this.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this.pixels);
+            glGenerateMipmap(GL_TEXTURE_2D);
 
-            glBindTexture(GL_TEXTURE_2D, 0);
+            this.unbind();
             this.valid = true;
         } catch (IOException ignored) {
             this.valid = false;

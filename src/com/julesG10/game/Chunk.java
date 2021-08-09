@@ -7,7 +7,7 @@ public class Chunk {
 
     public static final Size size = new Size(10, 10);
 
-    private Block[] blocks;
+    public Block[] blocks;
     public Vector2 position;
 
     public Chunk(Block[] blocks, Vector2 position) {
@@ -19,19 +19,19 @@ public class Chunk {
         this.blocks = new Block[size.width * size.height];
         this.position = position;
 
-        for (int i = 0; i < this.blocks.length; i++) {
-            this.blocks[i] = new Block();
+       for (int x=0;x < size.width;x++)
+       {
+           for (int y=0;y<size.height;y++)
+           {
+               Block block = new Block();
+               block.position = new Vector2(x * Block.size.width,y * Block.size.height);
+               this.blocks[x * size.width + y] = block;
+           }
         }
     }
 
-    public Block[] getBlocks() {
-        return this.blocks;
+    public Block getBlock(Vector2 position) {
+        return this.blocks[(int) (position.x * size.width + position.y)];
     }
 
-    public void setBlock(Block block) {
-        int index = (int) (block.position.x * size.width * block.position.y);
-        if (!(index >= this.blocks.length)) {
-            this.blocks[index] = block;
-        }
-    }
 }
