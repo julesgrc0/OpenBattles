@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jpackage" name="OpenBattles">
+    <output-path>$PROJECT_DIR$/out/artifacts/OpenBattles</output-path>
+    <root id="root">
+      <element id="archive" name="OpenBattles.jar">
+        <element id="module-output" name="OpenBattles" />
+      </element>
+    </root>
+  </artifact>
+</component>
