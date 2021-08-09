@@ -10,7 +10,7 @@ enum BlockType
 }
 
 public class Block {
-    public static Size size = new Size(100,100);
+    public static Size size = new Size(0,0);
 
     public Block()
     {
@@ -35,7 +35,7 @@ public class Block {
 
     public void render(Camera camera,Vector2 chunk)
     {
-        this.textures[this.texture_index].render(this.position.add(chunk).add(camera.position),Block.size,0);
+        this.textures[this.texture_index].render(camera.position.add(this.position.add(chunk)),Block.size,0);
     }
 
     public void update()

@@ -1,9 +1,6 @@
 package com.julesG10;
 
-import com.julesG10.game.Block;
-import com.julesG10.game.Camera;
-import com.julesG10.game.Chunk;
-import com.julesG10.game.World;
+import com.julesG10.game.*;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
@@ -12,7 +9,9 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -22,7 +21,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     private long window;
-    private Size size;
+    public static Size size;
     private GLFWVidMode glfwVidMode;
     public static final String TITLE = "Open Battles";
 
@@ -50,14 +49,14 @@ public class Main {
         glfwWindowHint(GLFW_GREEN_BITS, this.glfwVidMode.greenBits());
         glfwWindowHint(GLFW_BLUE_BITS, this.glfwVidMode.blueBits());
         glfwWindowHint(GLFW_REFRESH_RATE, this.glfwVidMode.refreshRate());
-        this.size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height());
+        size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height());
 
-        window = glfwCreateWindow(this.size.width, this.size.height,TITLE, monitor, NULL);
+        window = glfwCreateWindow(size.width, size.height,TITLE, monitor, NULL);
         if (window == NULL)
         {
             return false;
         }
-        glfwSetWindowMonitor(window,monitor,0,0,this.size.width,this.size.height,this.glfwVidMode.refreshRate());
+        glfwSetWindowMonitor(window,monitor,0,0,size.width,size.height,this.glfwVidMode.refreshRate());
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -102,29 +101,43 @@ public class Main {
             glEnable(GL_TEXTURE_2D);
         }
 
-        Block.size = new Size(this.size.width/10,this.size.height/10);
+        Block.size = new Size(size.width/10,size.height/10);
+        Player.size = Block.size;
+
+        World world = new World();
+        world.addPlayer(new Player());
+        world.camera = new Camera(new Vector2((Main.size.width - Player.size.width)/2,(Main.size.height-Player.size.height)/2),this.size);
+
+        Game game = new Game(this.window,world);
+        game.start();
+
 
         List<Chunk> chunkList = new ArrayList<>();
         Chunk tmp = new Chunk(new Vector2(0,0));
-        Texture def = new Texture("C:\\jules-dev\\~\\image processing\\c\\bitmapImage.png");
+        Map<Integer,Texture[]> gameTextures = new HashMap<>();
+        Texture[] tmpTextures = new Texture[1];
+        tmpTextures[0] = new Texture("C:\\jules-dev\\~\\image processing\\c\\bitmapImage.png");
+        gameTextures.put(0,tmpTextures);
+
+        tmpTextures = new Texture[1];
+        tmpTextures[0]  =new Texture("C:\\jules-dev\\release\\Tamagotchi\\Tamagotchi\\assets\\type_1\\default.png");
+        gameTextures.put(1,tmpTextures);
+
+        world.players.get(0).textures = gameTextures.get(1);
+
         for (int x=0;x < Chunk.size.width;x++)
         {
             for (int y=0;y<Chunk.size.height;y++)
             {
                 Block block = new Block();
                 block.position = new Vector2(x * Block.size.width,y * Block.size.height);
-                block.textures = new Texture[1];
-                block.textures[0] = def;
+                block.textures = gameTextures.get(0);
                 tmp.blocks[x * Chunk.size.width + y] = block;
             }
         }
-
         chunkList.add(tmp);
-        World world = new World(chunkList);
-        world.camera = new Camera( new Vector2(0,0),this.size);
 
-        Game game = new Game(this.window,world);
-        game.start();
+        world.chunks = chunkList;
 
         Timer timer = new Timer();
         while ( !glfwWindowShouldClose(window) )
@@ -136,7 +149,6 @@ public class Main {
             world.render();
             glfwSwapBuffers(window);
 
-            System.out.print("\r"+ 1.0 / deltatime);
         }
     }
 

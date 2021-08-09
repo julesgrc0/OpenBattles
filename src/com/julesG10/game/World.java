@@ -1,11 +1,15 @@
 package com.julesG10.game;
 
 
+import com.julesG10.Main;
+import com.julesG10.utils.Vector2;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class World {
-    public List<Chunk> chunks = new ArrayList<Chunk>();
+    public List<Chunk> chunks = new ArrayList<>();
+    public List<Player> players = new ArrayList<>();
     public Camera camera = new Camera();
 
     public World() {
@@ -15,6 +19,12 @@ public class World {
     public World(List<Chunk> chunks) {
         this.chunks = chunks;
         this.camera.active = false;
+    }
+
+    public int addPlayer(Player p)
+    {
+        this.players.add(p);
+        return this.players.size()-1;
     }
 
     public void render() {
@@ -27,11 +37,15 @@ public class World {
                     }
                 }
             }
-        }else{
-            for (int i = 0; i < this.chunks.size(); i++) {
-                    for (Block block : this.chunks.get(i).blocks) {
-                        block.render(this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width));
-                    }
+
+            for (Player p : this.players)
+            {
+
+                p.render(this.camera);
+                /*if(this.camera.isInView(p.position,Player.size))
+                {
+                    p.render(this.camera);
+                }*/
             }
         }
     }
