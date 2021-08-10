@@ -4,9 +4,9 @@ import com.julesG10.graphics.Texture;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Vector2;
 
-enum BlockType
+public enum BlockType
 {
-
+NONE
 }
 
 public class Block {
