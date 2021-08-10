@@ -136,12 +136,12 @@ public class Game extends Thread {
         float move = 0;
         if (glfwGetKey(this.window, GLFW_KEY_RIGHT) == GLFW_TRUE) {
 
-            this.world.camera.position.x -= add;
+            //this.world.camera.position.x -= add;
             this.world.players.get(0).position.x += add;
             move = add;
         }else if (glfwGetKey(this.window,GLFW_KEY_LEFT ) == GLFW_TRUE) {
 
-            this.world.camera.position.x += add;
+            //this.world.camera.position.x += add;
             this.world.players.get(0).position.x -= add;
             move = -add;
         }
@@ -150,20 +150,30 @@ public class Game extends Thread {
             if(move != 0)
             {
                 this.world.players.get(0).position.x -= move/2;
-                this.world.camera.position.x -= -move/2;
+              //  this.world.camera.position.x -= -move/2;
                 add /=2;
             }
-            this.world.camera.position.y -= add;
+            //this.world.camera.position.y -= add;
             this.world.players.get(0).position.y += add;
         }else if (glfwGetKey(this.window,GLFW_KEY_UP ) == GLFW_TRUE) {
             if(move != 0)
             {
                 this.world.players.get(0).position.x -= move/2;
-                this.world.camera.position.x -= -move/2;
+              //  this.world.camera.position.x -= -move/2;
                 add /=2;
             }
-            this.world.camera.position.y += add;
+            //this.world.camera.position.y += add;
             this.world.players.get(0).position.y -= add;
+        }
+
+        if(this.world.camera.position.x + this.world.players.get(0).position.x != (Main.size.width - Player.size.width)/2)
+        {
+            this.world.camera.position.x = (Main.size.width - Player.size.width)/2 - this.world.players.get(0).position.x;
+        }
+
+        if(this.world.camera.position.y + this.world.players.get(0).position.y != (Main.size.height - Player.size.height)/2)
+        {
+            this.world.camera.position.y = (Main.size.height - Player.size.height)/2 - this.world.players.get(0).position.y;
         }
 
         this.world.players.get(0).update(deltatime);

@@ -5,6 +5,7 @@ import com.julesG10.game.map.Block;
 import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;
 import com.julesG10.graphics.Texture;
+import com.julesG10.utils.AssetsManager;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
@@ -80,6 +81,8 @@ public class Main {
         glfwSwapInterval(GLFW_FALSE);
 
         glfwShowWindow(window);
+
+        AssetsManager.Init();
         return true;
     }
 
