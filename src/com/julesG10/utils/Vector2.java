@@ -25,4 +25,9 @@ public class Vector2 {
 
     public float x;
     public float y;
+
+   public boolean equal(Vector2 v)
+   {
+       return this.x == v.x && this.y == v.y;
+   }
 }

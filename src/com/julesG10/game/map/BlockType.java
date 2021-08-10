@@ -1,2 +1,5 @@
-package com.julesG10.game;public class BlockType {
+package com.julesG10.game.map;
+
+public enum BlockType {
+    NONE
 }

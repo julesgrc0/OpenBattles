@@ -1,13 +1,9 @@
-package com.julesG10.game;
+package com.julesG10.game.map;
 
+import com.julesG10.game.Camera;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Vector2;
-
-public enum BlockType
-{
-NONE
-}
 
 public class Block {
     public static Size size = new Size(0,0);
@@ -33,7 +29,7 @@ public class Block {
         this.textures[this.texture_index].render(this.position.add(chunk),Block.size,0);
     }
 
-    public void render(Camera camera,Vector2 chunk)
+    public void render(Camera camera, Vector2 chunk)
     {
         this.textures[this.texture_index].render(camera.position.add(this.position.add(chunk)),Block.size,0);
     }

@@ -14,10 +14,21 @@ public class Player {
     public static Size size = new Size(0,0);
     public Texture[] textures;
     public int texture_index;
+    public int id;
+    private float time;
 
-    public void update()
+    public void update(float deltatime)
     {
-
+        this.time += deltatime * 100;
+        if(this.time >= 200)
+        {
+            this.time=0;
+            this.texture_index++;
+            if(this.texture_index >= this.textures.length)
+            {
+                this.texture_index=0;
+            }
+        }
     }
 
     public void render(Camera camera)

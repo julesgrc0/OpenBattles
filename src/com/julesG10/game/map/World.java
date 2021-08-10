@@ -1,8 +1,8 @@
-package com.julesG10.game;
+package com.julesG10.game.map;
 
 
-import com.julesG10.Main;
-import com.julesG10.utils.Vector2;
+import com.julesG10.game.Camera;
+import com.julesG10.game.Player;
 
 import java.util.ArrayList;
 import java.util.List;

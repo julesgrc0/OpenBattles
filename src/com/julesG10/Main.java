@@ -1,6 +1,9 @@
 package com.julesG10;
 
 import com.julesG10.game.*;
+import com.julesG10.game.map.Block;
+import com.julesG10.game.map.Chunk;
+import com.julesG10.game.map.World;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;

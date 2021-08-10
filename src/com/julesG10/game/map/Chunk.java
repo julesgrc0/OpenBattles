@@ -1,4 +1,4 @@
-package com.julesG10.game;
+package com.julesG10.game.map;
 
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Vector2;
