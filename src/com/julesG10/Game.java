@@ -126,48 +126,46 @@ public class Game extends Thread {
                 break;
             }
 
-            this.CameraEffect(deltatime, GLFW_KEY_RIGHT, 0, -(deltatime * 400), true, timeAfterPress, wasPress,150);
-            this.CameraEffect(deltatime, GLFW_KEY_LEFT, 1, (deltatime * 400), true, timeAfterPress, wasPress,150);
-            this.CameraEffect(deltatime, GLFW_KEY_DOWN, 2, -(deltatime * 400), false, timeAfterPress, wasPress,150);
-            this.CameraEffect(deltatime, GLFW_KEY_UP, 3, (deltatime * 400), false, timeAfterPress, wasPress,150);
+            this.updateMove(deltatime);
         }
     }
 
-    public void CameraEffect(float deltatime,int key,int index,float add,boolean x,float[] after,boolean[] was,float duration) {
-        if (glfwGetKey(this.window, key) == GLFW_TRUE) {
-            was[index] = true;
-            if (x) {
-                this.world.camera.position.x += add;
-                this.world.players.get(0).position.x -= add;
-            } else {
-                this.world.camera.position.y += add;
-                this.world.players.get(0).position.y -= add;
-            }
-        }
-        /*else if (was[index]) {
-            was[index] = false;
-            after[index] += deltatime * 100;
-            if (x) {
-                this.world.camera.position.x += add > 0 ? (deltatime * (duration - after[index])) : -(deltatime * (100 - after[index]));
-                this.world.players.get(0).position.x -=  add > 0 ? (deltatime * (duration - after[index])) : -(deltatime * (100 - after[index]));
-            } else {
-                this.world.camera.position.y += add > 0 ? (deltatime * (duration - after[index])) : -(deltatime * (100 - after[index]));
-                this.world.players.get(0).position.y -=  add > 0 ? (deltatime * (duration - after[index])) : -(deltatime * (100 - after[index]));
-            }
+    public void updateMove(float deltatime)
+    {
+        float add = deltatime * 400;
+        float move = 0;
+        if (glfwGetKey(this.window, GLFW_KEY_RIGHT) == GLFW_TRUE) {
 
-        } else if (after[index] != 0) {
-            after[index] += deltatime * 100;
-            float add_effect = add > 0 ? (deltatime * (duration - after[index])) : -(deltatime * (100 - after[index]));
-            if (x) {
-                this.world.camera.position.x += add_effect;
-                this.world.players.get(0).position.x -= add_effect;
-            } else {
-                this.world.camera.position.y += add_effect;
-                this.world.players.get(0).position.y -=  add_effect;
+            this.world.camera.position.x -= add;
+            this.world.players.get(0).position.x += add;
+            move = add;
+        }else if (glfwGetKey(this.window,GLFW_KEY_LEFT ) == GLFW_TRUE) {
+
+            this.world.camera.position.x += add;
+            this.world.players.get(0).position.x -= add;
+            move = -add;
+        }
+
+        if (glfwGetKey(this.window, GLFW_KEY_DOWN) == GLFW_TRUE) {
+            if(move != 0)
+            {
+                this.world.players.get(0).position.x -= move/2;
+                this.world.camera.position.x -= -move/2;
+                add /=2;
             }
-            if (after[index] >= duration) {
-                after[index] = 0;
+            this.world.camera.position.y -= add;
+            this.world.players.get(0).position.y += add;
+        }else if (glfwGetKey(this.window,GLFW_KEY_UP ) == GLFW_TRUE) {
+            if(move != 0)
+            {
+                this.world.players.get(0).position.x -= move/2;
+                this.world.camera.position.x -= -move/2;
+                add /=2;
             }
-        }*/
+            this.world.camera.position.y += add;
+            this.world.players.get(0).position.y -= add;
+        }
+
+        this.world.players.get(0).update(deltatime);
     }
 }

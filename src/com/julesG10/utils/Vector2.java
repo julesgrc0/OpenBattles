@@ -10,9 +10,8 @@ public class Vector2 {
         return new Vector2(this.x * a, this.y * a);
     }
 
-    public Vector2 mult(Vector2 vector2)
-    {
-        return new Vector2(this.x *vector2.x, this.y * vector2.y);
+    public Vector2 mult(Vector2 vector2) {
+        return new Vector2(this.x * vector2.x, this.y * vector2.y);
     }
 
     public Vector2 min(Vector2 vector2) {
@@ -26,8 +25,11 @@ public class Vector2 {
     public float x;
     public float y;
 
-   public boolean equal(Vector2 v)
-   {
-       return this.x == v.x && this.y == v.y;
-   }
+    public boolean equal(Vector2 v) {
+        return this.x == v.x && this.y == v.y;
+    }
+
+    public float distance(Vector2 vec) {
+        return (float) Math.sqrt(Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) * 1.0);
+    }
 }

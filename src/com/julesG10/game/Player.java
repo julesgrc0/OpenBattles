@@ -20,7 +20,7 @@ public class Player {
     public void update(float deltatime)
     {
         this.time += deltatime * 100;
-        if(this.time >= 200)
+        if(this.time >= 20)
         {
             this.time=0;
             this.texture_index++;

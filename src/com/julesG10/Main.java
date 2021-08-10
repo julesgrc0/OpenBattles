@@ -122,8 +122,11 @@ public class Main {
         tmpTextures[0] = new Texture("C:\\jules-dev\\~\\image processing\\c\\bitmapImage.png");
         gameTextures.put(0,tmpTextures);
 
-        tmpTextures = new Texture[1];
-        tmpTextures[0]  =new Texture("C:\\jules-dev\\release\\Tamagotchi\\Tamagotchi\\assets\\type_1\\default.png");
+        tmpTextures = new Texture[7];
+        for (int i=0;i<tmpTextures.length;i++)
+        {
+            tmpTextures[i] = new Texture("C:\\jules-dev\\release\\Tamagotchi\\Tamagotchi\\x64\\Release\\assets\\type_1\\angry\\angry_"+i+".png");
+        }
         gameTextures.put(1,tmpTextures);
 
         world.players.get(0).textures = gameTextures.get(1);
