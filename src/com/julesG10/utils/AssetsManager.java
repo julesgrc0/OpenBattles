@@ -23,7 +23,7 @@ public class AssetsManager {
         } catch (URISyntaxException ignored) {}
     }
 
-    public Texture[] loadDirectory(String name)
+    public static Texture[] loadDirectory(String name)
     {
         List<Texture> textures = new ArrayList<>();
         File dir = new File(assetsPath.getPath() + File.separator + name);
@@ -31,7 +31,7 @@ public class AssetsManager {
         for (final File fileEntry : Objects.requireNonNull(dir.listFiles())) {
             if (!fileEntry.isDirectory() && fileEntry.canRead())
             {
-                if(fileEntry.getName().endsWith(".png") && fileEntry.getName().endsWith(".jpg"))
+                if(fileEntry.getName().endsWith(".png") || fileEntry.getName().endsWith(".jpg"))
                 {
                     textures.add(new Texture(fileEntry.getPath()));
                 }

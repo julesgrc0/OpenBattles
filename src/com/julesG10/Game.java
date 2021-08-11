@@ -1,9 +1,10 @@
 package com.julesG10;
 
-import com.julesG10.game.*;
 import com.julesG10.game.map.BlockType;
 import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;
+import com.julesG10.game.player.Player;
+import com.julesG10.game.player.PlayerDirection;
 import com.julesG10.network.Client;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
@@ -134,16 +135,22 @@ public class Game extends Thread {
     {
         float add = deltatime * 400;
         float move = 0;
+        boolean hasMove = false;
+
         if (glfwGetKey(this.window, GLFW_KEY_RIGHT) == GLFW_TRUE) {
 
             //this.world.camera.position.x -= add;
             this.world.players.get(0).position.x += add;
+            this.world.players.get(0).changeDirection(PlayerDirection.RIGHT);
             move = add;
+            hasMove=true;
         }else if (glfwGetKey(this.window,GLFW_KEY_LEFT ) == GLFW_TRUE) {
 
             //this.world.camera.position.x += add;
             this.world.players.get(0).position.x -= add;
+            this.world.players.get(0).changeDirection(PlayerDirection.LEFT);
             move = -add;
+            hasMove=true;
         }
 
         if (glfwGetKey(this.window, GLFW_KEY_DOWN) == GLFW_TRUE) {
@@ -155,15 +162,20 @@ public class Game extends Thread {
             }
             //this.world.camera.position.y -= add;
             this.world.players.get(0).position.y += add;
+            this.world.players.get(0).changeDirection(PlayerDirection.BOTTOM);
+            hasMove=true;
         }else if (glfwGetKey(this.window,GLFW_KEY_UP ) == GLFW_TRUE) {
             if(move != 0)
             {
                 this.world.players.get(0).position.x -= move/2;
               //  this.world.camera.position.x -= -move/2;
                 add /=2;
+
             }
             //this.world.camera.position.y += add;
             this.world.players.get(0).position.y -= add;
+            this.world.players.get(0).changeDirection(PlayerDirection.TOP);
+            hasMove=true;
         }
 
         if(this.world.camera.position.x + this.world.players.get(0).position.x != (Main.size.width - Player.size.width)/2)
@@ -176,6 +188,10 @@ public class Game extends Thread {
             this.world.camera.position.y = (Main.size.height - Player.size.height)/2 - this.world.players.get(0).position.y;
         }
 
-        this.world.players.get(0).update(deltatime);
+        if(hasMove)
+        {
+            this.world.players.get(0).update(deltatime);
+        }
+
     }
 }

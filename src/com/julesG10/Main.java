@@ -4,6 +4,7 @@ import com.julesG10.game.*;
 import com.julesG10.game.map.Block;
 import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;
+import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.AssetsManager;
 import com.julesG10.utils.Size;
@@ -12,6 +13,7 @@ import com.julesG10.utils.Vector2;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,10 +116,6 @@ public class Main {
         world.addPlayer(new Player());
         world.camera = new Camera(new Vector2((Main.size.width - Player.size.width)/2,(Main.size.height-Player.size.height)/2),this.size);
 
-        Game game = new Game(this.window,world);
-        game.start();
-
-
         List<Chunk> chunkList = new ArrayList<>();
         Chunk tmp = new Chunk(new Vector2(0,0));
         Map<Integer,Texture[]> gameTextures = new HashMap<>();
@@ -132,7 +130,18 @@ public class Main {
         }
         gameTextures.put(1,tmpTextures);
 
-        world.players.get(0).textures = gameTextures.get(1);
+        String[] playerAnimations = {"left","right","top","bottom"};
+        for (int i=0;i<playerAnimations.length;i++)
+        {
+            Texture[] t  =AssetsManager.loadDirectory("player"+ File.separator + playerAnimations[i]).clone();
+            gameTextures.put((gameTextures.size()-1)+i,t);
+
+            world.players.get(0).textures.add(t);
+        }
+
+
+
+        world.players.get(0).texture = gameTextures.get(2)[0];
 
         for (int x=0;x < Chunk.size.width;x++)
         {
@@ -147,6 +156,9 @@ public class Main {
         chunkList.add(tmp);
 
         world.chunks = chunkList;
+
+        Game game = new Game(this.window,world);
+        game.start();
 
         Timer timer = new Timer();
         while ( !glfwWindowShouldClose(window) )

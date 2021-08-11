@@ -2,7 +2,7 @@ package com.julesG10.game.map;
 
 
 import com.julesG10.game.Camera;
-import com.julesG10.game.Player;
+import com.julesG10.game.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;

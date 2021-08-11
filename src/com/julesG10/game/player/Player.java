@@ -1,8 +1,13 @@
-package com.julesG10.game;
+package com.julesG10.game.player;
 
+import com.julesG10.game.Camera;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Vector2;
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Player {
     public Player()
@@ -12,10 +17,22 @@ public class Player {
 
     public Vector2 position = new Vector2(0,0);
     public static Size size = new Size(0,0);
-    public Texture[] textures;
+
+    public Texture texture;
+    public List<Texture[]> textures = new ArrayList<>();
     public int texture_index;
     public int id;
     private float time;
+
+    private PlayerDirection direction = PlayerDirection.TOP;
+
+    public void changeDirection(PlayerDirection dir)
+    {
+        if(this.direction != dir) {
+            this.time = 20;
+            this.direction = dir;
+        }
+    }
 
     public void update(float deltatime)
     {
@@ -24,15 +41,17 @@ public class Player {
         {
             this.time=0;
             this.texture_index++;
-            if(this.texture_index >= this.textures.length)
+            if(this.texture_index >= textures.get(this.direction.ordinal()).length)
             {
                 this.texture_index=0;
             }
+
+            this.texture = textures.get(this.direction.ordinal())[this.texture_index];
         }
     }
 
     public void render(Camera camera)
     {
-        this.textures[this.texture_index].render(camera.position.add(this.position),size,0);
+        this.texture.render(camera.position.add(this.position),size,0);
     }
 }
