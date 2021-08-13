@@ -10,10 +10,12 @@ import com.julesG10.utils.AssetsManager;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import java.io.File;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,6 +170,20 @@ public class Main {
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             world.render();
+            glBegin(GL_POLYGON);
+            world.players.get(0).getBlockPosition();
+            DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
+            DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
+            glfwGetCursorPos(window, posX, posY);
+
+            Vector2 b = world.players.get(0).getBlockPosition();//new Vector2((float)posX.get(),(float)posY.get());
+            //b.roundTo(Block.size.toVector2());
+            b = world.camera.position.min(b);
+            glVertex2f(b.x, b.y);
+            glVertex2f(Block.size.width+b.x, b.y);
+            glVertex2f(Block.size.width+b.x, Block.size.height+b.y);
+            glVertex2f(b.x, Block.size.height+b.y);
+            glEnd();
             glfwSwapBuffers(window);
 
         }

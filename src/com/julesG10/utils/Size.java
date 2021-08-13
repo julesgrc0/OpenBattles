@@ -18,4 +18,9 @@ public class Size {
 
     public int width;
     public int height;
+
+    public Vector2 toVector2()
+    {
+        return new Vector2(this.width,this.height);
+    }
 }

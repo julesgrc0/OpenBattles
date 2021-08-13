@@ -1,6 +1,7 @@
 package com.julesG10.game.player;
 
 import com.julesG10.game.Camera;
+import com.julesG10.game.map.Block;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Vector2;
@@ -50,8 +51,13 @@ public class Player {
         }
     }
 
+    public Vector2 getBlockPosition()
+    {
+        return this.position.roundTo(Block.size.toVector2());
+    }
+
     public void render(Camera camera)
     {
-        this.texture.render(camera.position.add(this.position),size,0);
+        this.texture.render(camera.position.add(position),size,0);
     }
 }

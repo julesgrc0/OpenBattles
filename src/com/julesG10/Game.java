@@ -1,5 +1,6 @@
 package com.julesG10;
 
+import com.julesG10.game.map.Block;
 import com.julesG10.game.map.BlockType;
 import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;

@@ -1,5 +1,9 @@
 package com.julesG10.utils;
 
+import com.julesG10.game.map.Block;
+
+import java.util.Vector;
+
 public class Vector2 {
     public Vector2(float x, float y) {
         this.x = x;
@@ -31,5 +35,15 @@ public class Vector2 {
 
     public float distance(Vector2 vec) {
         return (float) Math.sqrt(Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) * 1.0);
+    }
+
+    public Vector2 roundTo(Vector2 vec)
+    {
+        return new Vector2((int)(this.x/vec.x)*vec.x,(int)(this.y/ vec.y)*vec.y);
+    }
+
+    public Size toSize()
+    {
+        return new Size((int)this.x,(int)this.y);
     }
 }
