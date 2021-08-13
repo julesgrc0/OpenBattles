@@ -9,6 +9,10 @@ import com.julesG10.game.player.PlayerDirection;
 import com.julesG10.network.Client;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
+import org.lwjgl.BufferUtils;
+
+import java.nio.DoubleBuffer;
+import java.util.Vector;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -130,6 +134,19 @@ public class Game extends Thread {
 
             this.updateMove(deltatime);
         }
+    }
+
+    public Vector2 mousePosition()
+    {
+        DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
+        DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
+        glfwGetCursorPos(window, posX, posY);
+
+        Vector2 b = new Vector2((float)posX.get(),(float)posY.get());
+        b = b.add(world.players.get(0).position);
+        b = b.min(new Vector2(Main.size.width/2,Main.size.height/2));
+        b = b.roundTo(Block.size.toVector2());
+        return world.camera.position.add(b);
     }
 
     public void updateMove(float deltatime)
