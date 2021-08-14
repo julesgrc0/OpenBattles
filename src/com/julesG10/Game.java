@@ -7,6 +7,7 @@ import com.julesG10.game.map.World;
 import com.julesG10.game.player.Player;
 import com.julesG10.game.player.PlayerDirection;
 import com.julesG10.network.Client;
+import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
 import org.lwjgl.BufferUtils;
@@ -141,12 +142,15 @@ public class Game extends Thread {
         DoubleBuffer posX = BufferUtils.createDoubleBuffer(1);
         DoubleBuffer posY = BufferUtils.createDoubleBuffer(1);
         glfwGetCursorPos(window, posX, posY);
+        return new Vector2((float)posX.get(),(float)posY.get());
+    }
 
-        Vector2 b = new Vector2((float)posX.get(),(float)posY.get());
-        b = b.add(world.players.get(0).position);
-        b = b.min(new Vector2(Main.size.width/2,Main.size.height/2));
-        b = b.roundTo(Block.size.toVector2());
-        return world.camera.position.add(b);
+    public Vector2 getPositionItemCamera(Vector2 vec, Vector2 gameItemPosition, Vector2 cameraPosition,Vector2 centerCamera, Size round)
+    {
+        vec = vec.add(gameItemPosition);
+        vec = vec.min(centerCamera);
+        vec = vec.roundTo(round.toVector2());
+        return cameraPosition.add(vec);
     }
 
     public void updateMove(float deltatime)

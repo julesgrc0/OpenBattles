@@ -170,17 +170,29 @@ public class Main {
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             world.render();
-            glBegin(GL_POLYGON);
 
+            //Vector2 b = game.getPositionItemCamera(game.mousePosition(),world.players.get(0).position,world.camera.position,Main.size.toVector2().div(2),Block.size);
+            this.renderBlockGrid(game);
 
-            Vector2 b = game.mousePosition();
-            glVertex2f(b.x, b.y);
-            glVertex2f(Block.size.width+b.x, b.y);
-            glVertex2f(Block.size.width+b.x, Block.size.height+b.y);
-            glVertex2f(b.x, Block.size.height+b.y);
-            glEnd();
             glfwSwapBuffers(window);
 
+        }
+    }
+
+    public void renderBlockGrid(Game game)
+    {
+        World world = game.world;
+        for (int x = 0;x <= Main.size.width;x+= Block.size.width)
+        {
+            for (int y = 0;y <= Main.size.height;y+= Block.size.height) {
+                Vector2 b = game.getPositionItemCamera(new Vector2(x, y), world.players.get(0).position, world.camera.position, Main.size.toVector2().div(2), Block.size);
+                glBegin(GL_LINE_LOOP);
+                glVertex2f(b.x, b.y);
+                glVertex2f(Block.size.width + b.x, b.y);
+                glVertex2f(Block.size.width + b.x, Block.size.height + b.y);
+                glVertex2f(b.x, Block.size.height + b.y);
+                glEnd();
+            }
         }
     }
 

@@ -26,6 +26,11 @@ public class Vector2 {
         return new Vector2(this.x + vector2.x, this.y + vector2.y);
     }
 
+    public Vector2 div(float a)
+    {
+        return new Vector2(this.x/a,this.y/a);
+    }
+
     public float x;
     public float y;
 

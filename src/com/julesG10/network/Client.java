@@ -53,7 +53,7 @@ public class Client {
                 OutputStream output = this.client.getOutputStream();
                 OutputStreamWriter writer = new OutputStreamWriter(output);
                 writer.write(data);
-                writer.close();
+                writer.flush();
                 return true;
             } catch (IOException ignored) {
                 return false;
