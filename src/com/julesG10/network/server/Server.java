@@ -1,7 +1,6 @@
-package com.julesG10.network;
+package com.julesG10.network.server;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 

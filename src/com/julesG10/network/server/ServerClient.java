@@ -1,11 +1,11 @@
-package com.julesG10.network;
+package com.julesG10.network.server;
 
 
 import java.io.*;
 import java.net.Socket;
 
 class ServerClient extends  Thread {
-    private Socket client;
+    protected Socket client;
 
     public ServerClient(Socket client) {
         super();

@@ -57,7 +57,7 @@ public class Main {
         glfwWindowHint(GLFW_GREEN_BITS, this.glfwVidMode.greenBits());
         glfwWindowHint(GLFW_BLUE_BITS, this.glfwVidMode.blueBits());
         glfwWindowHint(GLFW_REFRESH_RATE, this.glfwVidMode.refreshRate());
-        size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height());
+        size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height()); // resolution
 
         window = glfwCreateWindow(size.width, size.height,TITLE, monitor, NULL);
         if (window == NULL)

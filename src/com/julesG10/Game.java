@@ -1,28 +1,20 @@
 package com.julesG10;
 
-import com.julesG10.game.map.Block;
 import com.julesG10.game.map.BlockType;
 import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;
 import com.julesG10.game.player.Player;
 import com.julesG10.game.player.PlayerDirection;
 import com.julesG10.network.Client;
+import com.julesG10.network.GameClientCode;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
 import org.lwjgl.BufferUtils;
 
 import java.nio.DoubleBuffer;
-import java.util.Vector;
 
 import static org.lwjgl.glfw.GLFW.*;
-
-enum GameClientCode{
-    PLAYER_UPDATE,
-    PLAYER_ADD,
-    PLAYER_LEAVE,
-    MAP_UPDATE
-}
 
 public class Game extends Thread {
 

@@ -3,8 +3,8 @@ package com.julesG10.network.server;
 import java.io.IOException;
 import java.net.Socket;
 
-public class GameServer extends ServerClient {
-    public GameServer(Socket client) {
+public class GameServerClient extends ServerClient {
+    public GameServerClient(Socket client) {
         super(client);
     }
 

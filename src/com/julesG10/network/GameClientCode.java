@@ -1,4 +1,4 @@
-package com.julesG10;
+package com.julesG10.network;
 
 public enum GameClientCode {
     PLAYER_UPDATE,
