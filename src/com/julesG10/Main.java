@@ -31,6 +31,7 @@ public class Main {
     private long window;
     public static Size size;
     private GLFWVidMode glfwVidMode;
+    private final boolean fullscreen = true;
     public static final String TITLE = "Open Battles";
 
     public void run() {
@@ -57,14 +58,24 @@ public class Main {
         glfwWindowHint(GLFW_GREEN_BITS, this.glfwVidMode.greenBits());
         glfwWindowHint(GLFW_BLUE_BITS, this.glfwVidMode.blueBits());
         glfwWindowHint(GLFW_REFRESH_RATE, this.glfwVidMode.refreshRate());
-        size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height()); // resolution
 
-        window = glfwCreateWindow(size.width, size.height,TITLE, monitor, NULL);
-        if (window == NULL)
+        size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height());
+        if(fullscreen)
         {
-            return false;
+            window = glfwCreateWindow(size.width, size.height,TITLE, monitor, NULL);
+            if (window == NULL)
+            {
+                return false;
+            }
+            glfwSetWindowMonitor(window,monitor,0,0,size.width,size.height,this.glfwVidMode.refreshRate());
+        }else{
+            window = glfwCreateWindow(size.width, size.height,TITLE, NULL, NULL);
+            if (window == NULL)
+            {
+                return false;
+            }
         }
-        glfwSetWindowMonitor(window,monitor,0,0,size.width,size.height,this.glfwVidMode.refreshRate());
+
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -172,7 +183,7 @@ public class Main {
             world.render();
 
             //Vector2 b = game.getPositionItemCamera(game.mousePosition(),world.players.get(0).position,world.camera.position,Main.size.toVector2().div(2),Block.size);
-            this.renderBlockGrid(game);
+            //this.renderBlockGrid(game);
 
             glfwSwapBuffers(window);
 

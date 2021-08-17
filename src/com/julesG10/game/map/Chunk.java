@@ -34,4 +34,8 @@ public class Chunk {
         return this.blocks[(int) (position.x * size.width + position.y)];
     }
 
+    public void setBlock(Vector2 position,Block block)
+    {
+        this.blocks[(int) (position.x * size.width + position.y)] = block;
+    }
 }

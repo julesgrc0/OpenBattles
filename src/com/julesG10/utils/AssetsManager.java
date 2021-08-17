@@ -4,6 +4,9 @@ import com.julesG10.Main;
 import com.julesG10.graphics.Texture;
 import org.w3c.dom.Text;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -40,4 +43,5 @@ public class AssetsManager {
 
         return textures.toArray(new Texture[0]);
     }
+
 }
