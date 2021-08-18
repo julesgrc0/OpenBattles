@@ -4,6 +4,7 @@ import com.julesG10.game.*;
 import com.julesG10.game.map.Block;
 import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;
+import com.julesG10.game.map.WorldLoader;
 import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Texture;
 import com.julesG10.utils.AssetsManager;
@@ -16,10 +17,9 @@ import org.lwjgl.opengl.GL;
 
 import java.io.File;
 import java.nio.DoubleBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -33,11 +33,36 @@ public class Main {
     private GLFWVidMode glfwVidMode;
     private final boolean fullscreen = true;
     public static final String TITLE = "Open Battles";
+    private World world;
 
-    public void run() {
+
+    private boolean saveWorld = false;
+    private boolean showFps = false;
+    private boolean showGrid = false;
+
+    private boolean clientMode = true;
+    private String clientAddress;
+    private int clientPort;
+
+    private boolean serverMode = false;
+    private boolean publicServer =false;
+    private String serverAddress;
+    private int serverPort;
+
+
+    public void run()
+    {
         if(this.init())
         {
             this.loop();
+
+            if(this.saveWorld)
+            {
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
+                LocalDateTime now = LocalDateTime.now();
+                WorldLoader.generate(this.world,AssetsManager.getWorldDirectory() + File.separator + dtf.format(now) + ".map");
+            }
+
 
             glfwFreeCallbacks(window);
             glfwDestroyWindow(window);
@@ -46,7 +71,8 @@ public class Main {
         glfwTerminate();
     }
 
-    private boolean init() {
+    private boolean init()
+    {
         if (!glfwInit())
         {
             return false;
@@ -101,31 +127,12 @@ public class Main {
         return true;
     }
 
-    private void loop() {
-        GL.createCapabilities();
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glViewport(0, 0, this.size.width,this.size.height);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        glOrtho(0,this.size.width,this.size.height,0,1,-1);
-        glMatrixMode(GL_MODELVIEW);
-
-        if(!glIsEnabled(GL_BLEND))
-        {
-            glEnable(GL_BLEND);
-        }
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-        if(!glIsEnabled(GL_TEXTURE_2D))
-        {
-            glEnable(GL_TEXTURE_2D);
-        }
-
+    private void initGame()
+    {
         Block.size = new Size(size.width/10,size.height/10);
         Player.size = Block.size;
+        this.world  = new World();
 
-        World world = new World();
         world.addPlayer(new Player());
         world.camera = new Camera(new Vector2((Main.size.width - Player.size.width)/2,(Main.size.height-Player.size.height)/2),this.size);
 
@@ -146,7 +153,7 @@ public class Main {
         String[] playerAnimations = {"left","right","top","bottom"};
         for (int i=0;i<playerAnimations.length;i++)
         {
-            Texture[] t  =AssetsManager.loadDirectory("player"+ File.separator + playerAnimations[i]).clone();
+            Texture[] t  =AssetsManager.loadTextureDirectory("player"+ File.separator + playerAnimations[i]).clone();
             gameTextures.put((gameTextures.size()-1)+i,t);
 
             world.players.get(0).textures.add(t);
@@ -169,8 +176,32 @@ public class Main {
         chunkList.add(tmp);
 
         world.chunks = chunkList;
+    }
 
-        Game game = new Game(this.window,world);
+    private void loop() {
+        GL.createCapabilities();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glViewport(0, 0, this.size.width,this.size.height);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        glOrtho(0,this.size.width,this.size.height,0,1,-1);
+        glMatrixMode(GL_MODELVIEW);
+
+        if(!glIsEnabled(GL_BLEND))
+        {
+            glEnable(GL_BLEND);
+        }
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        if(!glIsEnabled(GL_TEXTURE_2D))
+        {
+            glEnable(GL_TEXTURE_2D);
+        }
+
+        this.initGame();
+
+        Game game = new Game(this.window,this.world);
         game.start();
 
         Timer timer = new Timer();
@@ -180,11 +211,19 @@ public class Main {
             float deltatime = timer.restart();
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            world.render();
+            this.world.render();
 
             //Vector2 b = game.getPositionItemCamera(game.mousePosition(),world.players.get(0).position,world.camera.position,Main.size.toVector2().div(2),Block.size);
-            //this.renderBlockGrid(game);
 
+            if(this.showGrid)
+            {
+                this.renderBlockGrid(game);
+            }
+
+            if(this.showFps)
+            {
+                System.out.print("\rFPS "+(1.0/deltatime));
+            }
             glfwSwapBuffers(window);
 
         }
@@ -207,8 +246,57 @@ public class Main {
         }
     }
 
+    public void parseArgs(String[] args)
+    {
+        for (String arg : args)
+        {
+            if(arg.startsWith("-"))
+            {
+                String tmp = arg;
+                tmp = tmp.substring(1);
+                tmp = tmp.toLowerCase();
+                String[] data = tmp.split("=");
+
+                if(data.length == 2)
+                {
+                    switch (data[0])
+                    {
+                        case "fps":
+                            this.showFps = (data[1].equals("true") ? true : false);
+                            break;
+                        case "grid":
+                            this.showGrid = (data[1].equals("true")  ? true : false);
+                            break;
+                        case "save":
+                            this.saveWorld = (data[1].equals("true") ? true : false);
+                            break;
+                        case "server":
+                            this.serverMode = true;
+                            this.clientMode = false;
+                            this.serverAddress = data[1];
+                            break;
+                        case "client":
+                            this.serverMode = false;
+                            this.clientMode = true;
+                            this.clientAddress = data[1];
+                            break;
+                        case "port":
+                            this.clientPort = Integer.getInteger(data[1]);
+                            this.serverPort = Integer.getInteger(data[1]);
+                            break;
+                        case "public":
+                            this.publicServer = (data[1].equals("true") ? true : false);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        new Main().run();
+       Main main = new Main();
+       main.parseArgs(args);
+       main.run();
     }
 
 

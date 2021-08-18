@@ -13,22 +13,9 @@ import java.util.Arrays;
 
 public class WorldLoader {
 
-    public WorldLoader()
-    {
 
-    }
-
-    public World load(String filename)
-    {
-        try {
-            byte[] content = Files.readAllBytes(Paths.get(filename));
-            return this.load(content);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    public World load(byte[] bytes)
+    // Files.readAllBytes(Paths.get(filename))
+    public static World load(byte[] bytes)
     {
         String content = bytes.toString();
         String[] lines = content.split("\n");
@@ -67,7 +54,7 @@ public class WorldLoader {
         return world;
     }
 
-    public void generate(World world,String path)
+    public static void generate(World world,String path)
     {
         try {
             FileWriter writer = new FileWriter(path);
@@ -76,7 +63,8 @@ public class WorldLoader {
                 writer.write("[CHUNK]"+c.position.x+";"+c.position.y);
                 for (Block b : c.blocks)
                 {
-                writer.write(";"+b.type+"|"+b.position.x+"|"+b.position.y);
+
+                    writer.write(";"+(b.type == null ? 0 : b.type.ordinal())+"|"+b.position.x+"|"+b.position.y);
                 }
                 writer.write("\n");
             }
