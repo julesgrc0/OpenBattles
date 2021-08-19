@@ -31,7 +31,8 @@ public class World {
         if(this.camera.active)
         {
             for (int i = 0; i < this.chunks.size(); i++) {
-                if (this.camera.isInView(this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width), Chunk.size.mult(Block.size))) {
+                if (this.camera.isInView(this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width), Chunk.size.mult(Block.size)))
+                {
                     for (Block block : this.chunks.get(i).blocks) {
                         block.render(this.camera,this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width));
                     }
@@ -40,12 +41,10 @@ public class World {
 
             for (Player p : this.players)
             {
-
-                p.render(this.camera);
-                /*if(this.camera.isInView(p.position,Player.size))
+                if(this.camera.isInView(p.position.add(this.camera.position),Player.size))
                 {
                     p.render(this.camera);
-                }*/
+                }
             }
         }
     }

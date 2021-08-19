@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Server {
+public class Server<T extends ServerClient> {
     private int port;
     private Socket socket;
     private ServerSocket server;
@@ -28,7 +28,8 @@ public class Server {
         {
             try {
                 socket = server.accept();
-                new ServerClient(socket).start();
+                ServerClient client = T.build(socket);
+                client.start();
             } catch (IOException ignored) {}
         }
 

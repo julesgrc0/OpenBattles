@@ -31,14 +31,15 @@ public class Main {
     private long window;
     public static Size size;
     private GLFWVidMode glfwVidMode;
-    private final boolean fullscreen = true;
+
     public static final String TITLE = "Open Battles";
     private World world;
 
-
+    private Size userSize = new Size(-1,-1);
     private boolean saveWorld = false;
     private boolean showFps = false;
     private boolean showGrid = false;
+    private boolean fullscreen = true;
 
     private boolean clientMode = true;
     private String clientAddress;
@@ -95,6 +96,11 @@ public class Main {
             }
             glfwSetWindowMonitor(window,monitor,0,0,size.width,size.height,this.glfwVidMode.refreshRate());
         }else{
+            if(this.userSize.width != -1 && this.userSize.height != -1)
+            {
+                size = this.userSize;
+            }
+
             window = glfwCreateWindow(size.width, size.height,TITLE, NULL, NULL);
             if (window == NULL)
             {
@@ -134,7 +140,7 @@ public class Main {
         this.world  = new World();
 
         world.addPlayer(new Player());
-        world.camera = new Camera(new Vector2((Main.size.width - Player.size.width)/2,(Main.size.height-Player.size.height)/2),this.size);
+        world.camera = new Camera(new Vector2((Main.size.width - Player.size.width)/2,(Main.size.height-Player.size.height)/2),size);
 
         List<Chunk> chunkList = new ArrayList<>();
         Chunk tmp = new Chunk(new Vector2(0,0));
@@ -267,6 +273,20 @@ public class Main {
                         case "grid":
                             this.showGrid = (data[1].equals("true")  ? true : false);
                             break;
+                            /*
+                            // Bug  Camera + Block size
+
+                        case "fullscreen":
+                            this.fullscreen = (data[1].equals("true")  ? true : false);
+                            break;
+                        case "size":
+                            String[] sizeData = data[1].split("x");
+                            if(sizeData.length == 2) {
+                                this.userSize = new Size((int)Float.parseFloat(sizeData[0]),(int)Float.parseFloat(sizeData[1]));
+
+                            }
+                            break;
+                            */
                         case "save":
                             this.saveWorld = (data[1].equals("true") ? true : false);
                             break;
@@ -295,7 +315,7 @@ public class Main {
 
     public static void main(String[] args) {
        Main main = new Main();
-       main.parseArgs(args);
+       main.parseArgs(args); // -grid=false -fullscreen=false -size=500x500
        main.run();
     }
 

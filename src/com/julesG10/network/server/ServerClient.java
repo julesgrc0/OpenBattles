@@ -12,6 +12,11 @@ class ServerClient extends  Thread {
         this.client = client;
     }
 
+    public static ServerClient build(Socket client)
+    {
+        return new ServerClient(client);
+    }
+
     protected boolean send(String data) {
         try {
             OutputStream output = this.client.getOutputStream();
