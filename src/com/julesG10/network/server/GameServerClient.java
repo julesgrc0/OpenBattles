@@ -1,5 +1,7 @@
 package com.julesG10.network.server;
 
+import com.julesG10.utils.Console;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -9,8 +11,10 @@ public class GameServerClient extends ServerClient {
     }
 
     @Override
-    public void run() {
-        super.run();
+    public void RunClient() {
+        super.RunClient();
+
+        Console.log("Run client");
         try {
             while (true) {
                 String data = this.recieve();
@@ -25,6 +29,9 @@ public class GameServerClient extends ServerClient {
                     }
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException e)
+        {
+            Console.log(e.getMessage());
+        }
     }
 }

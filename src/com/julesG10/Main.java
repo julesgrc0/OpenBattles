@@ -7,10 +7,11 @@ import com.julesG10.game.map.World;
 import com.julesG10.game.map.WorldLoader;
 import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Texture;
-import com.julesG10.utils.AssetsManager;
-import com.julesG10.utils.Size;
+import com.julesG10.network.Client;
+import com.julesG10.network.server.GameServerClient;
+import com.julesG10.network.server.Server;
+import com.julesG10.utils.*;
 import com.julesG10.utils.Timer;
-import com.julesG10.utils.Vector2;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -47,29 +48,90 @@ public class Main {
 
     private boolean serverMode = false;
     private boolean publicServer =false;
-    private String serverAddress;
     private int serverPort;
 
+    private boolean consoleMode = false;
 
     public void run()
     {
-        if(this.init())
+        Console.active = this.consoleMode;
+        if(!this.consoleMode)
         {
-            this.loop();
-
-            if(this.saveWorld)
+            if(this.init())
             {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
-                LocalDateTime now = LocalDateTime.now();
-                WorldLoader.generate(this.world,AssetsManager.getWorldDirectory() + File.separator + dtf.format(now) + ".map");
+                this.loop();
+
+                if(this.saveWorld)
+                {
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
+                    LocalDateTime now = LocalDateTime.now();
+                    WorldLoader.generate(this.world,AssetsManager.getWorldDirectory() + File.separator + dtf.format(now) + ".map");
+                }
+
+
+                glfwFreeCallbacks(window);
+                glfwDestroyWindow(window);
             }
 
+            glfwTerminate();
+        }else{
+            Console.log("Console Mode");
+            if(this.serverMode)
+            {
+                Console.log("Starting server");
+                Server<GameServerClient> server = new Server<>(this.publicServer, this.serverPort);
+                server.start();
+            }else if(this.clientMode)
+            {
+                Console.log("Init client");
+                String host = "127.0.0.1";
+                int port = 0;
+                Scanner scanner = new Scanner(System.in);
 
-            glfwFreeCallbacks(window);
-            glfwDestroyWindow(window);
+                if(this.clientAddress != null)
+                {
+                   host = this.clientAddress;
+                }else{
+                    System.out.print("(hostname)>");
+                    host =  scanner.nextLine();
+                }
+
+                if(this.clientPort != 0)
+                {
+                   port = this.clientPort;
+                }else{
+                    System.out.print("(port)>");
+                    port = (int)Float.parseFloat(scanner.nextLine());
+                }
+
+                Client client= new Client(host,port);
+                Console.log("Try connect client to "+host+":"+port);
+
+                if(client.connect(5000))
+                {
+                    Console.log("Client connected");
+                    while (client.connected)
+                    {
+                        System.out.print("(send) -> ");
+                        String input = scanner.nextLine();
+                        if(input != null)
+                        {
+                            client.send(input);
+                        }
+
+                        String data = client.recieve();
+                        if(data != null)
+                        {
+                            System.out.println("(recieve) <- "+data);
+                        }
+                    }
+                    Console.log("Client close");
+                }else{
+                    Console.log("Fail to connect the client");
+                }
+            }
+            Console.log("Exit");
         }
-
-        glfwTerminate();
     }
 
     private boolean init()
@@ -140,34 +202,21 @@ public class Main {
         this.world  = new World();
 
         world.addPlayer(new Player());
-        world.camera = new Camera(new Vector2((Main.size.width - Player.size.width)/2,(Main.size.height-Player.size.height)/2),size);
+        world.camera = new Camera(new Vector2(0,0),size);
 
-        List<Chunk> chunkList = new ArrayList<>();
-        Chunk tmp = new Chunk(new Vector2(0,0));
-        Map<Integer,Texture[]> gameTextures = new HashMap<>();
-        Texture[] tmpTextures = new Texture[1];
-        tmpTextures[0] = new Texture("C:\\jules-dev\\~\\image processing\\c\\bitmapImage.png");
-        gameTextures.put(0,tmpTextures);
-
-        tmpTextures = new Texture[7];
-        for (int i=0;i<tmpTextures.length;i++)
-        {
-            tmpTextures[i] = new Texture("C:\\jules-dev\\release\\Tamagotchi\\Tamagotchi\\x64\\Release\\assets\\type_1\\angry\\angry_"+i+".png");
-        }
-        gameTextures.put(1,tmpTextures);
-
+        // player textures
         String[] playerAnimations = {"left","right","top","bottom"};
         for (int i=0;i<playerAnimations.length;i++)
         {
-            Texture[] t  =AssetsManager.loadTextureDirectory("player"+ File.separator + playerAnimations[i]).clone();
-            gameTextures.put((gameTextures.size()-1)+i,t);
-
+            Texture[] t  = AssetsManager.loadTextureDirectory("player"+ File.separator + playerAnimations[i]).clone();
             world.players.get(0).textures.add(t);
         }
+        world.players.get(0).texture = world.players.get(0).textures.get(0)[0];
 
-
-
-        world.players.get(0).texture = gameTextures.get(2)[0];
+        // world setup
+        List<Chunk> chunkList = new ArrayList<>();
+        Chunk chunk = new Chunk(new Vector2(0,0));
+        Texture[] blockTextures = {new Texture(AssetsManager.assetsPath+File.separator+"block.png")};
 
         for (int x=0;x < Chunk.size.width;x++)
         {
@@ -175,12 +224,11 @@ public class Main {
             {
                 Block block = new Block();
                 block.position = new Vector2(x * Block.size.width,y * Block.size.height);
-                block.textures = gameTextures.get(0);
-                tmp.blocks[x * Chunk.size.width + y] = block;
+                block.textures = blockTextures.clone();
+                chunk.blocks[x * Chunk.size.width + y] = block;
             }
         }
-        chunkList.add(tmp);
-
+        chunkList.add(chunk);
         world.chunks = chunkList;
     }
 
@@ -287,22 +335,26 @@ public class Main {
                             }
                             break;
                             */
+                        case "window":
+                            this.consoleMode = !(data[1].equals("true") ? true : false);
+                            break;
                         case "save":
                             this.saveWorld = (data[1].equals("true") ? true : false);
                             break;
                         case "server":
-                            this.serverMode = true;
-                            this.clientMode = false;
-                            this.serverAddress = data[1];
+                            this.serverMode = (data[1].equals("true") ? true : false);;
+                            this.clientMode = !this.serverMode;
                             break;
                         case "client":
-                            this.serverMode = false;
-                            this.clientMode = true;
-                            this.clientAddress = data[1];
+                            this.clientMode = (data[1].equals("true") ? true : false);;
+                            this.serverMode = !this.clientMode;
                             break;
                         case "port":
-                            this.clientPort = Integer.getInteger(data[1]);
-                            this.serverPort = Integer.getInteger(data[1]);
+                            this.clientPort = (int)Float.parseFloat(data[1]);
+                            this.serverPort = (int)Float.parseFloat(data[1]);
+                            break;
+                        case "address":
+                            this.clientAddress = data[1];
                             break;
                         case "public":
                             this.publicServer = (data[1].equals("true") ? true : false);
@@ -315,7 +367,7 @@ public class Main {
 
     public static void main(String[] args) {
        Main main = new Main();
-       main.parseArgs(args); // -grid=false -fullscreen=false -size=500x500
+       main.parseArgs(args); // -fullscreen=false -size=500x500 -window=false -server=false -public=false -port=8080 -address=127.0.0.1
        main.run();
     }
 

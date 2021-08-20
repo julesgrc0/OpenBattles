@@ -1,5 +1,8 @@
 package com.julesG10.utils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 // https://stackoverflow.com/a/51944613
 enum Color {
     //Color end string, color reset
@@ -87,6 +90,34 @@ enum Color {
     }
 }
 
-public class Log {
+public class Console {
+    public static boolean active;
 
+    public static void color(Color c)
+    {
+        System.out.print(c);
+    }
+
+    public static void reset()
+    {
+        System.out.print(Color.RESET);
+    }
+
+    public static void log(String message)
+    {
+        if(active)
+        {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+
+            reset();
+            color(Color.BLACK);
+            System.out.print("["+dtf.format(now)+"] ");
+            color(Color.CYAN);
+            System.out.print("INFO: ");
+            color(Color.WHITE);
+            System.out.println(message);
+            reset();
+        }
+    }
 }

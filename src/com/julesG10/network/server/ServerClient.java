@@ -1,6 +1,8 @@
 package com.julesG10.network.server;
 
 
+import com.julesG10.utils.Console;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -47,7 +49,11 @@ class ServerClient extends  Thread {
         }
     }
 
+    public void RunClient() {}
+
+    @Override
     public void run() {
         super.run();
+        this.RunClient();
     }
 }

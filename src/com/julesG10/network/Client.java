@@ -1,5 +1,7 @@
 package com.julesG10.network;
 
+import com.julesG10.utils.Console;
+
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -22,7 +24,8 @@ public class Client {
             this.client.connect(new InetSocketAddress(this.hostname, this.port), timeout);
             this.connected = true;
             return true;
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            Console.log(e.getMessage());
             return false;
         }
     }
