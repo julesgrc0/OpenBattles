@@ -8,16 +8,14 @@ import com.julesG10.game.map.WorldLoader;
 import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Texture;
 import com.julesG10.network.Client;
-import com.julesG10.network.server.GameServerClient;
 import com.julesG10.network.server.Server;
+import com.julesG10.network.server.game.GameServer;
 import com.julesG10.utils.*;
 import com.julesG10.utils.Timer;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import java.io.File;
-import java.nio.DoubleBuffer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -79,7 +77,7 @@ public class Main {
             if(this.serverMode)
             {
                 Console.log("Starting server");
-                Server<GameServerClient> server = new Server<>(this.publicServer, this.serverPort);
+                GameServer server = new GameServer(this.publicServer, this.serverPort);
                 server.start();
             }else if(this.clientMode)
             {
@@ -110,7 +108,7 @@ public class Main {
                 if(client.connect(5000))
                 {
                     Console.log("Client connected");
-                    while (client.connected)
+                    while (client.client.isConnected() && !client.client.isClosed())
                     {
                         System.out.print("(send) -> ");
                         String input = scanner.nextLine();

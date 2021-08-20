@@ -6,7 +6,7 @@ import com.julesG10.utils.Console;
 import java.io.*;
 import java.net.Socket;
 
-class ServerClient extends  Thread {
+public class ServerClient extends  Thread {
     protected Socket client;
 
     public ServerClient(Socket client) {
@@ -27,6 +27,7 @@ class ServerClient extends  Thread {
             writer.flush();
             return true;
         } catch (IOException e) {
+            Console.log(e.getMessage());
             return false;
         }
     }
@@ -44,7 +45,8 @@ class ServerClient extends  Thread {
             }
 
             return data.toString();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            Console.log(e.getMessage());
             return null;
         }
     }

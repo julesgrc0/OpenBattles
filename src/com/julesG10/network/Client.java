@@ -43,7 +43,8 @@ public class Client {
                 }
 
                 return data.toString();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                Console.log(e.getMessage());
                 return null;
             }
         }
@@ -56,9 +57,10 @@ public class Client {
                 OutputStream output = this.client.getOutputStream();
                 OutputStreamWriter writer = new OutputStreamWriter(output);
                 writer.write(data);
-                writer.flush();
+                writer.close();
                 return true;
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                Console.log(e.getMessage());
                 return false;
             }
         }

@@ -1,5 +1,6 @@
-package com.julesG10.network.server;
+package com.julesG10.network.server.game;
 
+import com.julesG10.network.server.ServerClient;
 import com.julesG10.utils.Console;
 
 import java.io.IOException;
@@ -14,20 +15,22 @@ public class GameServerClient extends ServerClient {
     public void RunClient() {
         super.RunClient();
 
-        Console.log("Run client");
         try {
-            while (true) {
+            while (!client.isClosed() && client.isConnected())
+            {
                 String data = this.recieve();
+                Console.log(data);
                 if(data == null)
                 {
                     this.client.close();
                     break;
-                }else{
+                }
+                /*else{
                     if(!this.send(data))
                     {
                         break;
                     }
-                }
+                }*/
             }
         } catch (IOException e)
         {
