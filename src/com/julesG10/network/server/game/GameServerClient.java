@@ -15,26 +15,22 @@ public class GameServerClient extends ServerClient {
     public void RunClient() {
         super.RunClient();
 
-        try {
-            while (!client.isClosed() && client.isConnected())
+        String data = this.recieve();
+        while (data != null)
+        {
+            Console.log(data);
+            data = this.recieve();
+            /*if(data == null)
             {
-                String data = this.recieve();
-                Console.log(data);
-                if(data == null)
+                this.client.close();
+                break;
+            }
+            else{
+                if(!this.send(data))
                 {
-                    this.client.close();
                     break;
                 }
-                /*else{
-                    if(!this.send(data))
-                    {
-                        break;
-                    }
-                }*/
-            }
-        } catch (IOException e)
-        {
-            Console.log(e.getMessage());
+            }*/
         }
     }
 }

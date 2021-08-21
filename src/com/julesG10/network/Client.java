@@ -10,8 +10,7 @@ public class Client {
 
     public String hostname;
     public int port;
-    public Socket client;
-    public boolean connected = false;
+    public Socket client = new Socket();
 
     public Client(String hostname, int port) {
         this.hostname = hostname;
@@ -20,9 +19,7 @@ public class Client {
 
     public boolean connect(int timeout) {
         try {
-            this.client = new Socket();
             this.client.connect(new InetSocketAddress(this.hostname, this.port), timeout);
-            this.connected = true;
             return true;
         } catch (IOException e) {
             Console.log(e.getMessage());
@@ -31,10 +28,9 @@ public class Client {
     }
 
     public String recieve() {
-        if (this.connected) {
+        if (this.client.isConnected()) {
             try {
-                InputStream input = this.client.getInputStream();
-                InputStreamReader reader = new InputStreamReader(input);
+                DataInputStream reader = new DataInputStream(this.client.getInputStream());
 
                 int character;
                 StringBuilder data = new StringBuilder();
@@ -52,12 +48,12 @@ public class Client {
     }
 
     public boolean send(String data) {
-        if (this.connected) {
+        if (this.client.isConnected()) {
             try {
-                OutputStream output = this.client.getOutputStream();
-                OutputStreamWriter writer = new OutputStreamWriter(output);
-                writer.write(data);
-                writer.close();
+                DataOutputStream writer = new DataOutputStream(this.client.getOutputStream());
+
+                writer.writeBytes(data);
+                writer.flush();
                 return true;
             } catch (IOException e) {
                 Console.log(e.getMessage());

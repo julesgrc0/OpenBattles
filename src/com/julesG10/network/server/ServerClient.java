@@ -14,16 +14,12 @@ public class ServerClient extends  Thread {
         this.client = client;
     }
 
-    public static ServerClient build(Socket client)
-    {
-        return new ServerClient(client);
-    }
 
     protected boolean send(String data) {
         try {
-            OutputStream output = this.client.getOutputStream();
-            OutputStreamWriter writer = new OutputStreamWriter(output);
-            writer.write(data);
+            DataOutputStream writer = new DataOutputStream(this.client.getOutputStream());
+
+            writer.writeBytes(data);
             writer.flush();
             return true;
         } catch (IOException e) {
@@ -35,8 +31,7 @@ public class ServerClient extends  Thread {
 
     protected String recieve() {
         try {
-            InputStream input = this.client.getInputStream();
-            InputStreamReader reader = new InputStreamReader(input);
+            DataInputStream reader = new DataInputStream(this.client.getInputStream());
 
             int character;
             StringBuilder data = new StringBuilder();
@@ -44,7 +39,7 @@ public class ServerClient extends  Thread {
                 data.append((char) character);
             }
 
-            return data.toString();
+            return data.toString(); //reader.readAllBytes().toString();
         } catch (IOException e) {
             Console.log(e.getMessage());
             return null;
