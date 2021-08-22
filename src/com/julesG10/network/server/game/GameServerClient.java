@@ -15,14 +15,12 @@ public class GameServerClient extends ServerClient {
     public void RunClient() {
         super.RunClient();
 
-        String data = this.recieve();
-        while (data != null)
+        while (this.client.isConnected())
         {
-            Console.log(data);
-            data = this.recieve();
-            /*if(data == null)
+            String data = this.recieve();
+            if(data == null)
             {
-                this.client.close();
+                Console.log("Client Leave");
                 break;
             }
             else{
@@ -30,7 +28,8 @@ public class GameServerClient extends ServerClient {
                 {
                     break;
                 }
-            }*/
+            }
         }
+        this.close();
     }
 }

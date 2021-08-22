@@ -108,21 +108,21 @@ public class Main {
                 if(client.connect(5000))
                 {
                     Console.log("Client connected");
-                    while (client.client.isConnected() && !client.client.isClosed())
+                    while (client.client.isConnected())
                     {
                         System.out.print("(send) -> ");
                         String input = scanner.nextLine();
-                        if(input != null)
-                        {
-                            client.send(input);
-                        }
+                        client.send(input);
 
                         String data = client.recieve();
-                        if(data != null)
+                        if(data == null)
                         {
-                            System.out.println("(recieve) <- "+data);
+                          break;
                         }
+
+                        Console.log(data);
                     }
+                    client.close();
                     Console.log("Client close");
                 }else{
                     Console.log("Fail to connect the client");
