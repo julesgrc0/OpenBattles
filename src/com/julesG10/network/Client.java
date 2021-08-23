@@ -43,7 +43,7 @@ public class Client {
         }
     }
 
-    public String recieve() {
+    public String receive() {
         if (this.client.isConnected()) {
             try {
 

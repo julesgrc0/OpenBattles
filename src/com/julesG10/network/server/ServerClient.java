@@ -48,7 +48,7 @@ public class ServerClient extends  Thread {
         }
     }
 
-    protected String recieve() {
+    protected String receive() {
         try {
 
             int character;

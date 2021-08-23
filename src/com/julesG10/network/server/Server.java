@@ -20,7 +20,7 @@ public class Server {
             try {
                 this.address = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
-                Console.log("Fail to get localhost address");
+                Console.log("Fail to get IPv4 address");
                 this.address = "127.0.0.1";
             }
         }

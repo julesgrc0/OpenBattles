@@ -8,7 +8,6 @@ import com.julesG10.game.map.WorldLoader;
 import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Texture;
 import com.julesG10.network.Client;
-import com.julesG10.network.server.Server;
 import com.julesG10.network.server.game.GameServer;
 import com.julesG10.utils.*;
 import com.julesG10.utils.Timer;
@@ -103,7 +102,7 @@ public class Main {
                 }
 
                 Client client= new Client(host,port);
-                Console.log("Try connect client to "+host+":"+port);
+                Console.log("Trying connect client to "+host+":"+port);
 
                 if(client.connect(5000))
                 {
@@ -114,13 +113,13 @@ public class Main {
                         String input = scanner.nextLine();
                         client.send(input);
 
-                        String data = client.recieve();
+                        String data = client.receive();
                         if(data == null)
                         {
                           break;
                         }
 
-                        Console.log(data);
+                        System.out.println("(receive) -> "+data);
                     }
                     client.close();
                     Console.log("Client close");

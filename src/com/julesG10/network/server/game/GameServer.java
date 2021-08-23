@@ -16,7 +16,7 @@ import java.util.Map;
 public class GameServer extends Server {
 
     private List<Map.Entry<GamePlayer,GameServerClient>> clients = new ArrayList<>();
-
+    public int id = 0;
     public GameServer(boolean isPublic,int port)
     {
         super(isPublic,port);
@@ -52,7 +52,7 @@ public class GameServer extends Server {
             try {
                 Socket socket = server.accept();
                 Console.log("New Client");
-
+                this.id++;
                 this.addClient(socket);
                 this.startLastClient();
                 //this.updateClients();
@@ -77,17 +77,28 @@ public class GameServer extends Server {
 
     public void startLastClient()
     {
-        clients.get(clients.size()-1).getValue().player = clients.get(clients.size()-1).getKey();
-        clients.get(clients.size()-1).getValue().start();
+        GameServerClient client =  clients.get(clients.size()-1).getValue();
+        client.player = clients.get(clients.size()-1).getKey();
+        client.id = this.id;
+        client.start();
     }
 
     public void updateClients()
     {
-        clients.removeIf(entry -> !entry.getValue().isAlive() || !entry.getValue().isActive());
+        clients.removeIf(entry -> {
+            if(!entry.getValue().isAlive() || !entry.getValue().isActive())
+            {
+                entry.getValue().interrupt();
+                return true;
+            }else{
+                return false;
+            }
+        });
 
         for (Map.Entry<GamePlayer, GameServerClient> entry : clients)
         {
             entry.getValue().players = clients;
+            entry.getValue().update();
         }
     }
 }

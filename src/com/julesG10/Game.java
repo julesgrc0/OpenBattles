@@ -6,7 +6,7 @@ import com.julesG10.game.map.World;
 import com.julesG10.game.player.Player;
 import com.julesG10.game.player.PlayerDirection;
 import com.julesG10.network.Client;
-import com.julesG10.network.GameClientCode;
+import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
@@ -42,12 +42,12 @@ public class Game extends Thread {
             {
                 while (clientActive)
                 {
-                    String raw = client.recieve();
+                    String raw = client.receive();
                     if(raw != null)
                     {
                         int code = raw.charAt(0)+raw.charAt(1);
                         String data = raw.substring(0,2) + raw.substring(3);
-                        GameClientCode clientCode = GameClientCode.values()[code];
+                        GameNetworkCodes clientCode = GameNetworkCodes.values()[code];
                         String[] update = data.split(";");
                         switch (clientCode)
                         {

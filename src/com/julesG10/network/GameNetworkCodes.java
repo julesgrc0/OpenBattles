@@ -1,8 +1,11 @@
 package com.julesG10.network;
 
-public enum GameClientCode {
+public enum GameNetworkCodes {
     PLAYER_UPDATE,
     PLAYER_ADD,
     PLAYER_LEAVE,
-    MAP_UPDATE
+    MAP_UPDATE,
+    ACTION_OK,
+    ACTION_FAIL,
+    EXIT
 }
