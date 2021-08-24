@@ -320,7 +320,7 @@ public class Main {
                         case "grid":
                             this.showGrid = (data[1].equals("true")  ? true : false);
                             break;
-                            /*
+                        /*
                             // Bug  Camera + Block size
 
                         case "fullscreen":
@@ -333,7 +333,7 @@ public class Main {
 
                             }
                             break;
-                            */
+                        */
                         case "window":
                             this.consoleMode = !(data[1].equals("true") ? true : false);
                             break;

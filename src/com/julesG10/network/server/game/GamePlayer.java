@@ -4,15 +4,15 @@ import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Vector2;
 
 public class GamePlayer {
-    public Vector2 position;
-    public long time;
-    public int life;
-    public int id;
+    public Vector2 position = new Vector2(0,0);
+    public long time = 0;
+    public int life =0;
+    public int id = 0;
 
-    public String toString()
+    public String toString(GameNetworkCodes code)
     {
         StringBuilder builder = new StringBuilder();
-        builder.append(GameNetworkCodes.PLAYER_UPDATE.ordinal());
+        builder.append(code.ordinal());
         builder.append("|");
         builder.append(id);
         builder.append("|");

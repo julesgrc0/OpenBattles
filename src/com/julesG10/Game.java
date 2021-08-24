@@ -122,17 +122,18 @@ public class Game extends Thread {
             Player player = new Player();
             player.position =  new Vector2(Float.parseFloat(parts[0]),Float.parseFloat(parts[1]));
             player.texture_index = 0;
-            player.id = Integer.getInteger(parts[2]);
+            player.id = (int)Float.parseFloat(parts[2]);
             this.world.addPlayer(player);
-        }else if(code == GameNetworkCodes.PLAYER_LEAVE)
+        }else if(code == GameNetworkCodes.PLAYER_CLEAR)
         {
-            int id =  Integer.getInteger(parts[0]);
-            this.world.players.removeIf(player -> player.id == id);
+            Player player = this.world.players.get(0);
+            this.world.players.clear();
+            this.world.players.add(player);
         }else if(code == GameNetworkCodes.PLAYER_UPDATE)
         {
             for (Player p : this.world.players)
             {
-                if(p.id == Integer.getInteger(parts[0]))
+                if(p.id == (int)Float.parseFloat(parts[0]))
                 {
                     p.position=  new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
                     break;
@@ -165,8 +166,9 @@ public class Game extends Thread {
 
             this.client.send(builder.toString());
         }
-
     }
+
+
 
     public void updateMove(float deltatime)
     {

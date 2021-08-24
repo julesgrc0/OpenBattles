@@ -61,13 +61,14 @@ public class GameServerClient extends ServerClient {
 
     public void update()
     {
+        this.send(GameNetworkCodes.PLAYER_CLEAR.ordinal()+"|");
         for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
         {
             GameServerClient client = entry.getValue();
 
             if(client.id != this.id)
             {
-                this.send(entry.getKey().toString());
+                this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_ADD));
             }
         }
     }
