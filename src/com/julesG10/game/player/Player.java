@@ -17,6 +17,7 @@ public class Player {
     }
 
     public Vector2 position = new Vector2(0,0);
+    public int life;
     public static Size size = new Size(0,0);
 
     public Texture texture;

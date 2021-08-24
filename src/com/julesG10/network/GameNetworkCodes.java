@@ -7,5 +7,6 @@ public enum GameNetworkCodes {
     MAP_UPDATE,
     ACTION_OK,
     ACTION_FAIL,
-    EXIT
+    EXIT,
+    INIT
 }

@@ -32,6 +32,7 @@ public class Main {
 
     public static final String TITLE = "Open Battles";
     private World world;
+    private Client gameClient;
 
     private Size userSize = new Size(-1,-1);
     private boolean saveWorld = false;
@@ -197,6 +198,7 @@ public class Main {
         Block.size = new Size(size.width/10,size.height/10);
         Player.size = Block.size;
         this.world  = new World();
+        this.gameClient = new Client(this.clientAddress,this.clientPort);
 
         world.addPlayer(new Player());
         world.camera = new Camera(new Vector2(0,0),size);
@@ -252,7 +254,7 @@ public class Main {
 
         this.initGame();
 
-        Game game = new Game(this.window,this.world);
+        Game game = new Game(this.window,this.world, this.gameClient);
         game.start();
 
         Timer timer = new Timer();

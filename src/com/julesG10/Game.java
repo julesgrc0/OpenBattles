@@ -13,6 +13,7 @@ import com.julesG10.utils.Vector2;
 import org.lwjgl.BufferUtils;
 
 import java.nio.DoubleBuffer;
+import java.util.Arrays;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -26,81 +27,25 @@ public class Game extends Thread {
     public World world;
 
 
-    public Game(long window,World world)
+    public Game(long window,World world,Client client)
     {
         super();
         this.window = window;
         this.world = world;
+        this.client = client;
     }
 
     public void run()
     {
         super.run();
         Thread clientThread = new Thread(() -> {
-            client = new Client("",22);
             if(client.connect(5000))
             {
                 while (clientActive)
                 {
-                    String raw = client.receive();
-                    if(raw != null)
-                    {
-                        int code = raw.charAt(0)+raw.charAt(1);
-                        String data = raw.substring(0,2) + raw.substring(3);
-                        GameNetworkCodes clientCode = GameNetworkCodes.values()[code];
-                        String[] update = data.split(";");
-                        switch (clientCode)
-                        {
-                            case MAP_UPDATE:
-                                Vector2 chunk_position = new Vector2(Float.parseFloat(update[0]),Float.parseFloat(update[1]));
-                                for (Chunk c : this.world.chunks)
-                                {
-                                    if(c.position.equal(chunk_position))
-                                    {
-                                        for (int i=2;i<update.length;i++)
-                                        {
-                                            int index = Integer.getInteger(update[i]);
-                                            BlockType type = BlockType.values()[index];
-
-                                            if(c.blocks[0].type != type)
-                                            {
-                                                c.blocks[0].texture_index=0;
-                                                c.blocks[0].type = type;
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                            case PLAYER_ADD:
-                                Player player = new Player();
-                                player.position =  new Vector2(Float.parseFloat(update[0]),Float.parseFloat(update[1]));
-                                player.texture_index = 0;
-                                player.id = Integer.getInteger(update[2]);
-                                this.world.addPlayer(player);
-                                break;
-                            case PLAYER_LEAVE:
-                                int index=0;
-                                for (Player p : this.world.players)
-                                {
-                                    if(p.id == Integer.getInteger(update[0]))
-                                    {
-                                        break;
-                                    }
-                                    index++;
-                                }
-                                this.world.players.remove(index);
-                                break;
-                            case PLAYER_UPDATE:
-                                for (Player p : this.world.players)
-                                {
-                                    if(p.id == Integer.getInteger(update[0]))
-                                    {
-                                        p.position=  new Vector2(Float.parseFloat(update[0]),Float.parseFloat(update[1]));
-                                        break;
-                                    }
-                                }
-                                break;
-                        }
+                    String data = client.receive();
+                    if(data != null) {
+                        this.onData(data);
                     }
                 }
             }
@@ -143,6 +88,84 @@ public class Game extends Thread {
         vec = vec.min(centerCamera);
         vec = vec.roundTo(round.toVector2());
         return cameraPosition.add(vec);
+    }
+
+    public void onData(String data)
+    {
+        String[] parts = data.split("\\|");
+
+        GameNetworkCodes code = GameNetworkCodes.values()[(int)Float.parseFloat(parts[0])];
+        parts =  Arrays.copyOfRange(parts, 1, parts.length);
+
+        if(code == GameNetworkCodes.MAP_UPDATE)
+        {
+            Vector2 chunk_position = new Vector2(Float.parseFloat(parts[0]),Float.parseFloat(parts[1]));
+            for (Chunk c : this.world.chunks)
+            {
+                if(c.position.equal(chunk_position))
+                {
+                    for (int i=2;i<parts.length;i++)
+                    {
+                        int index = Integer.getInteger(parts[i]);
+                        BlockType type = BlockType.values()[index];
+
+                        if(c.blocks[0].type != type)
+                        {
+                            c.blocks[0].texture_index=0;
+                            c.blocks[0].type = type;
+                        }
+                    }
+                }
+            }
+        }else if(code == GameNetworkCodes.PLAYER_ADD)
+        {
+            Player player = new Player();
+            player.position =  new Vector2(Float.parseFloat(parts[0]),Float.parseFloat(parts[1]));
+            player.texture_index = 0;
+            player.id = Integer.getInteger(parts[2]);
+            this.world.addPlayer(player);
+        }else if(code == GameNetworkCodes.PLAYER_LEAVE)
+        {
+            int id =  Integer.getInteger(parts[0]);
+            this.world.players.removeIf(player -> player.id == id);
+        }else if(code == GameNetworkCodes.PLAYER_UPDATE)
+        {
+            for (Player p : this.world.players)
+            {
+                if(p.id == Integer.getInteger(parts[0]))
+                {
+                    p.position=  new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
+                    break;
+                }
+            }
+        }else if(code == GameNetworkCodes.INIT)
+        {
+            this.world.players.get(0).id = (int)Float.parseFloat(parts[0]);
+        }
+    }
+
+    public void sendPlayer()
+    {
+        if(this.client.client.isConnected())
+        {
+            StringBuilder builder = new StringBuilder();
+            Player player = this.world.players.get(0);
+
+            builder.append(GameNetworkCodes.PLAYER_UPDATE.ordinal());
+            builder.append("|");
+            builder.append(player.id);
+            builder.append("|");
+            builder.append(player.position.x);
+            builder.append("|");
+            builder.append(player.position.y);
+            builder.append("|");
+            builder.append(player.life);
+            builder.append("|");
+            builder.append(System.nanoTime());
+
+            this.client.send(builder.toString());
+        }
+
     }
 
     public void updateMove(float deltatime)
@@ -205,7 +228,7 @@ public class Game extends Thread {
         if(hasMove)
         {
             this.world.players.get(0).update(deltatime);
+            this.sendPlayer();
         }
-
     }
 }
