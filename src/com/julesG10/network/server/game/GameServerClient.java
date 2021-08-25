@@ -3,6 +3,7 @@ package com.julesG10.network.server.game;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.network.server.ServerClient;
 import com.julesG10.utils.Console;
+import com.julesG10.utils.Pair;
 import com.julesG10.utils.Vector2;
 
 import java.net.Socket;
@@ -14,7 +15,7 @@ public class GameServerClient extends ServerClient {
     public GamePlayer player;
     public int id;
 
-    public List<Map.Entry<GamePlayer,GameServerClient>> players = new ArrayList<>();
+    public List<Pair<GamePlayer,GameServerClient>> players = new ArrayList<>();
 
     public GameServerClient(Socket client) {
         super(client);
@@ -84,17 +85,38 @@ public class GameServerClient extends ServerClient {
         }else if(code == GameNetworkCodes.PLAYER_UPDATE)
         {
             int id = (int)Float.parseFloat(parts[1]);
-            Vector2 position = new Vector2(Float.parseFloat(parts[2]),Float.parseFloat(parts[3]));
-            int life = (int)Float.parseFloat(parts[4]);
-            long time = Long.parseLong(parts[5]);
 
             if(this.player.id == id)
             {
+                Vector2 position = new Vector2(Float.parseFloat(parts[2]),Float.parseFloat(parts[3]));
+                int life = (int)Float.parseFloat(parts[4]);
+                long time = Long.parseLong(parts[5]);
+
                 this.player.position = position;
                 this.player.life = life;
-                this.player.time = (System.nanoTime() - time);
+                this.player.time = (long)((System.nanoTime() - time) * Math.pow(10,-6));
 
-                // System.out.print("\r"+ (float)(this.player.time * Math.pow(10,-6))+" ms "); ping
+                for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
+                {
+                    if(entry.getValue().id != this.player.id)
+                    {
+                        this.send(this.player.toString(GameNetworkCodes.PLAYER_UPDATE));
+                    }
+                }
+            }
+        }else if(code == GameNetworkCodes.INIT)
+        {
+            int id = (int)Float.parseFloat(parts[1]);
+
+            if(this.player.id == id)
+            {
+                Vector2 position = new Vector2(Float.parseFloat(parts[2]),Float.parseFloat(parts[3]));
+                int life = (int)Float.parseFloat(parts[4]);
+                long time = Long.parseLong(parts[5]);
+
+                this.player.position = position;
+                this.player.life = life;
+                this.player.time = (long)((System.nanoTime() - time) * Math.pow(10,-6));
             }
         }
 

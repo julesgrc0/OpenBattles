@@ -7,6 +7,7 @@ import com.julesG10.game.player.Player;
 import com.julesG10.game.player.PlayerDirection;
 import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
+import com.julesG10.utils.Console;
 import com.julesG10.utils.Size;
 import com.julesG10.utils.Timer;
 import com.julesG10.utils.Vector2;
@@ -38,27 +39,21 @@ public class Game extends Thread {
     public void run()
     {
         super.run();
-        Thread clientThread = new Thread(() -> {
-            if(client.connect(5000))
-            {
-                while (clientActive)
-                {
-                    String data = client.receive();
-                    if(data != null) {
-                        this.onData(data);
-                    }
-                }
-            }
-        });
-        clientThread.start();
+        if(client.connect(5000))
+        {
+            Thread clientThread = new Thread(() -> {
 
-        boolean[] wasPress = new boolean[]{
-                false, // x+
-                false, // x-
-                false, // y+
-                false  //  y-
-        };
-        float[] timeAfterPress = new float[]{0,0,0,0};
+                    while (clientActive)
+                    {
+                        String data = client.receive();
+                        if(data != null) {
+                            this.onData(data);
+                        }
+                    }
+
+            });
+            clientThread.start();
+        }
 
         Timer timer = new Timer();
         while (!glfwWindowShouldClose(window)) {
@@ -93,8 +88,15 @@ public class Game extends Thread {
     public void onData(String data)
     {
         String[] parts = data.split("\\|");
+        int codeindex = (int)Float.parseFloat(parts[0]);
+        int len = GameNetworkCodes.values().length;
 
-        GameNetworkCodes code = GameNetworkCodes.values()[(int)Float.parseFloat(parts[0])];
+        if(codeindex > len || codeindex < len)
+        {
+            return;
+        }
+
+        GameNetworkCodes code= GameNetworkCodes.values()[codeindex];
         parts =  Arrays.copyOfRange(parts, 1, parts.length);
 
         if(code == GameNetworkCodes.MAP_UPDATE)
@@ -123,18 +125,22 @@ public class Game extends Thread {
             player.position =  new Vector2(Float.parseFloat(parts[0]),Float.parseFloat(parts[1]));
             player.texture_index = 0;
             player.id = (int)Float.parseFloat(parts[2]);
+
+            player.textures = this.world.players.get(0).textures;
+            player.texture = this.world.players.get(0).texture;
+
             this.world.addPlayer(player);
         }else if(code == GameNetworkCodes.PLAYER_CLEAR)
         {
-            Player player = this.world.players.get(0);
-            this.world.players.clear();
-            this.world.players.add(player);
+            int id = this.world.players.get(0).id;
+            this.world.players.removeIf(player -> player.id != id);
         }else if(code == GameNetworkCodes.PLAYER_UPDATE)
         {
             for (Player p : this.world.players)
             {
                 if(p.id == (int)Float.parseFloat(parts[0]))
                 {
+                    System.out.println(parts.length);
                     p.position=  new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
                     break;
                 }
@@ -142,6 +148,30 @@ public class Game extends Thread {
         }else if(code == GameNetworkCodes.INIT)
         {
             this.world.players.get(0).id = (int)Float.parseFloat(parts[0]);
+            this.sendInit();
+        }
+    }
+
+    public void sendInit()
+    {
+        if(this.client.client.isConnected())
+        {
+            StringBuilder builder = new StringBuilder();
+            Player player = this.world.players.get(0);
+
+            builder.append(GameNetworkCodes.INIT.ordinal());
+            builder.append("|");
+            builder.append(player.id);
+            builder.append("|");
+            builder.append(player.position.x);
+            builder.append("|");
+            builder.append(player.position.y);
+            builder.append("|");
+            builder.append(player.life);
+            builder.append("|");
+            builder.append(System.nanoTime());
+
+            this.client.send(builder.toString());
         }
     }
 
@@ -175,19 +205,20 @@ public class Game extends Thread {
         float add = deltatime * 400;
         float move = 0;
         boolean hasMove = false;
+        Player player = this.world.players.get(0);
 
         if (glfwGetKey(this.window, GLFW_KEY_RIGHT) == GLFW_TRUE) {
 
             //this.world.camera.position.x -= add;
-            this.world.players.get(0).position.x += add;
-            this.world.players.get(0).changeDirection(PlayerDirection.RIGHT);
+            player.position.x += add;
+            player.changeDirection(PlayerDirection.RIGHT);
             move = add;
             hasMove=true;
         }else if (glfwGetKey(this.window,GLFW_KEY_LEFT ) == GLFW_TRUE) {
 
             //this.world.camera.position.x += add;
-            this.world.players.get(0).position.x -= add;
-            this.world.players.get(0).changeDirection(PlayerDirection.LEFT);
+            player.position.x -= add;
+            player.changeDirection(PlayerDirection.LEFT);
             move = -add;
             hasMove=true;
         }
@@ -195,25 +226,25 @@ public class Game extends Thread {
         if (glfwGetKey(this.window, GLFW_KEY_DOWN) == GLFW_TRUE) {
             if(move != 0)
             {
-                this.world.players.get(0).position.x -= move/2;
+                player.position.x -= move/2;
               //  this.world.camera.position.x -= -move/2;
                 add /=2;
             }
             //this.world.camera.position.y -= add;
-            this.world.players.get(0).position.y += add;
-            this.world.players.get(0).changeDirection(PlayerDirection.BOTTOM);
+            player.position.y += add;
+            player.changeDirection(PlayerDirection.BOTTOM);
             hasMove=true;
         }else if (glfwGetKey(this.window,GLFW_KEY_UP ) == GLFW_TRUE) {
             if(move != 0)
             {
-                this.world.players.get(0).position.x -= move/2;
+                player.position.x -= move/2;
               //  this.world.camera.position.x -= -move/2;
                 add /=2;
 
             }
             //this.world.camera.position.y += add;
-            this.world.players.get(0).position.y -= add;
-            this.world.players.get(0).changeDirection(PlayerDirection.TOP);
+            player.position.y -= add;
+            player.changeDirection(PlayerDirection.TOP);
             hasMove=true;
         }
 
@@ -229,7 +260,7 @@ public class Game extends Thread {
 
         if(hasMove)
         {
-            this.world.players.get(0).update(deltatime);
+            player.update(deltatime);
             this.sendPlayer();
         }
     }

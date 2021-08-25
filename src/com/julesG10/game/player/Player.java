@@ -61,4 +61,5 @@ public class Player {
     {
         this.texture.render(camera.position.add(position),size,0);
     }
+
 }

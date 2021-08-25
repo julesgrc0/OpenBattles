@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class GameServer extends Server {
 
-    private List<Map.Entry<GamePlayer,GameServerClient>> clients = new ArrayList<>();
+    private List<Pair<GamePlayer,GameServerClient>> clients = new ArrayList<>();
     public int id = 0;
     public GameServer(boolean isPublic,int port)
     {
@@ -36,16 +36,18 @@ public class GameServer extends Server {
 
         Console.log("Server socket is running  "+server.getLocalSocketAddress());
 
-        new Thread(() -> {
+        Thread updateThread = new Thread(() -> {
             while (active)
             {
-                updateClients();
+                checkClientsConnections();
 
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException ignored) { }
             }
-        }).start();
+        });
+
+        updateThread.start();
 
         while (this.active)
         {
@@ -55,7 +57,8 @@ public class GameServer extends Server {
                 this.id++;
                 this.addClient(socket);
                 this.startLastClient();
-                //this.updateClients();
+
+                this.updateClients();
             } catch (IOException e)
             {
                 Console.log(e.getMessage());
@@ -70,8 +73,8 @@ public class GameServer extends Server {
         GamePlayer player = new GamePlayer();
         GameServerClient client = new GameServerClient(socket);
 
-        Map.Entry<GamePlayer, GameServerClient> entry = new Pair<>(player,client);
-        clients.add(entry);
+        Pair<GamePlayer, GameServerClient> pair = new Pair<>(player,client);
+        clients.add(pair);
     }
 
 
@@ -83,7 +86,7 @@ public class GameServer extends Server {
         client.start();
     }
 
-    public void updateClients()
+    public void checkClientsConnections()
     {
         clients.removeIf(entry -> {
             if(!entry.getValue().isAlive() || !entry.getValue().isActive())
@@ -95,10 +98,13 @@ public class GameServer extends Server {
             }
         });
 
-        for (Map.Entry<GamePlayer, GameServerClient> entry : clients)
-        {
-            entry.getValue().players = clients;
-            entry.getValue().update();
+       this.updateClients();
+    }
+
+    public void updateClients() {
+        for (Pair<GamePlayer, GameServerClient> pair : clients) {
+            pair.getValue().players = clients;
+            pair.getValue().update();
         }
     }
 }
