@@ -42,7 +42,7 @@ public class GameServer extends Server {
                 checkClientsConnections();
 
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(1);
                 } catch (InterruptedException ignored) { }
             }
         });
@@ -58,7 +58,7 @@ public class GameServer extends Server {
                 this.addClient(socket);
                 this.startLastClient();
 
-                this.updateClients();
+                this.clearUpdateClients();
             } catch (IOException e)
             {
                 Console.log(e.getMessage());
@@ -84,6 +84,11 @@ public class GameServer extends Server {
         client.player = clients.get(clients.size()-1).getKey();
         client.id = this.id;
         client.start();
+
+        this.updateClients();
+        for (Pair<GamePlayer, GameServerClient> pair : clients) {
+            pair.getValue().sendAdd();
+        }
     }
 
     public void checkClientsConnections()
@@ -91,6 +96,7 @@ public class GameServer extends Server {
         clients.removeIf(entry -> {
             if(!entry.getValue().isAlive() || !entry.getValue().isActive())
             {
+                this.clearUpdateClients();
                 entry.getValue().interrupt();
                 return true;
             }else{
@@ -98,11 +104,19 @@ public class GameServer extends Server {
             }
         });
 
-       this.updateClients();
+        this.updateClients();
+    }
+
+    public void clearUpdateClients()
+    {
+        for (Pair<GamePlayer, GameServerClient> pair : clients) {
+            pair.getValue().clearUpdate();
+        }
     }
 
     public void updateClients() {
         for (Pair<GamePlayer, GameServerClient> pair : clients) {
+            pair.setKey(pair.getValue().player);
             pair.getValue().players = clients;
             pair.getValue().update();
         }

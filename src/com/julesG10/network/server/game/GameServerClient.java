@@ -60,25 +60,52 @@ public class GameServerClient extends ServerClient {
     }
 
 
-    public void update()
+    public void clearUpdate()
     {
-        this.send(GameNetworkCodes.PLAYER_CLEAR.ordinal()+"|");
+        StringBuilder data = new StringBuilder(GameNetworkCodes.PLAYER_GENERAL_UPDATE.ordinal());
+        data.append("|");
         for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
         {
             GameServerClient client = entry.getValue();
 
             if(client.id != this.id)
             {
-                this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_ADD));
+                String pData = entry.getKey().toString();
+                data.append(pData.replaceAll("\\|", ";")).append("|");
             }
         }
+
+        this.send(data.toString());
+    }
+
+    public void update()
+    {
+        for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
+        {
+            GameServerClient client = entry.getValue();
+
+            if(client.id != this.id)
+            {
+                this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_UPDATE));
+            }
+        }
+    }
+
+    public void clear()
+    {
+        this.send(GameNetworkCodes.PLAYER_CLEAR.ordinal()+"|");
     }
 
     private boolean onData(String data)
     {
         String[] parts = data.split("\\|");
+        if(parts.length == 0)
+        {
+            return true;
+        }
 
         GameNetworkCodes code = GameNetworkCodes.values()[(int)Float.parseFloat(parts[0])];
+
         if(code == GameNetworkCodes.EXIT)
         {
             return false;
@@ -96,13 +123,7 @@ public class GameServerClient extends ServerClient {
                 this.player.life = life;
                 this.player.time = (long)((System.nanoTime() - time) * Math.pow(10,-6));
 
-                for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
-                {
-                    if(entry.getValue().id != this.player.id)
-                    {
-                        this.send(this.player.toString(GameNetworkCodes.PLAYER_UPDATE));
-                    }
-                }
+                //this.update();
             }
         }else if(code == GameNetworkCodes.INIT)
         {
@@ -121,5 +142,18 @@ public class GameServerClient extends ServerClient {
         }
 
         return true;
+    }
+
+    public void sendAdd() {
+        this.clear();
+        for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
+        {
+            GameServerClient client = entry.getValue();
+
+            if(client.id != this.id)
+            {
+                this.send( entry.getKey().toString(GameNetworkCodes.PLAYER_ADD));
+            }
+        }
     }
 }

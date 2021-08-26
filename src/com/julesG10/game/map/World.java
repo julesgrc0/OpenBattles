@@ -39,8 +39,10 @@ public class World {
                 }
             }
 
-            for (Player p : this.players)
+            Object[] objs = this.players.toArray();
+            for (Object obj : objs)
             {
+                Player p = (Player)obj;
                 if(this.camera.isInView(p.position.add(this.camera.position),Player.size))
                 {
                     p.render(this.camera);

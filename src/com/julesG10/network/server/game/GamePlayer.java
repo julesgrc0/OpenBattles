@@ -25,4 +25,19 @@ public class GamePlayer {
         builder.append(time);
         return builder.toString();
     }
+
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(id);
+        builder.append("|");
+        builder.append(position.x);
+        builder.append("|");
+        builder.append(position.y);
+        builder.append("|");
+        builder.append(life);
+        builder.append("|");
+        builder.append(time);
+        return builder.toString();
+    }
 }

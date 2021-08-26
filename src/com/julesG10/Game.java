@@ -42,15 +42,17 @@ public class Game extends Thread {
         if(client.connect(5000))
         {
             Thread clientThread = new Thread(() -> {
-
                     while (clientActive)
                     {
                         String data = client.receive();
                         if(data != null) {
                             this.onData(data);
+                        }else{
+                            clientActive = false;
+                            int id = world.players.get(0).id;
+                            world.players.removeIf(player -> player.id != id);
                         }
                     }
-
             });
             clientThread.start();
         }
@@ -88,15 +90,26 @@ public class Game extends Thread {
     public void onData(String data)
     {
         String[] parts = data.split("\\|");
-        int codeindex = (int)Float.parseFloat(parts[0]);
-        int len = GameNetworkCodes.values().length;
-
-        if(codeindex > len || codeindex < len)
+        if(parts.length < 1)
         {
             return;
         }
 
-        GameNetworkCodes code= GameNetworkCodes.values()[codeindex];
+        int codeindex;
+        try{
+            codeindex =    (int)Float.parseFloat(parts[0]);
+            int len = GameNetworkCodes.values().length;
+            if(codeindex >= len || codeindex < 0)
+            {
+                return;
+            }
+        }catch (NumberFormatException e)
+        {
+            return;
+        }
+
+
+        GameNetworkCodes code = GameNetworkCodes.values()[codeindex];
         parts =  Arrays.copyOfRange(parts, 1, parts.length);
 
         if(code == GameNetworkCodes.MAP_UPDATE)
@@ -130,25 +143,43 @@ public class Game extends Thread {
             player.texture = this.world.players.get(0).texture;
 
             this.world.addPlayer(player);
-        }else if(code == GameNetworkCodes.PLAYER_CLEAR)
+
+        }else if(code == GameNetworkCodes.PLAYER_CLEAR && parts.length >= 1)
         {
             int id = this.world.players.get(0).id;
             this.world.players.removeIf(player -> player.id != id);
-        }else if(code == GameNetworkCodes.PLAYER_UPDATE)
+        }else if(code == GameNetworkCodes.PLAYER_UPDATE && parts.length >= 3)
         {
+            int mainId = this.world.players.get(0).id;
+            int id = (int)Float.parseFloat(parts[0]);
             for (Player p : this.world.players)
             {
-                if(p.id == (int)Float.parseFloat(parts[0]))
+                if(p.id != mainId && p.id == id)
                 {
-                    System.out.println(parts.length);
-                    p.position=  new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
+                    p.position = new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
                     break;
                 }
             }
-        }else if(code == GameNetworkCodes.INIT)
+        }else if(code == GameNetworkCodes.INIT  && parts.length >= 1)
         {
             this.world.players.get(0).id = (int)Float.parseFloat(parts[0]);
             this.sendInit();
+
+        }else if(code == GameNetworkCodes.PLAYER_GENERAL_UPDATE && parts.length != 0)
+        {
+            System.out.println(code + " "+String.join(" ",parts));
+            for (String pData : parts)
+            {
+                String[] pParts = pData.split(";");
+                int id = (int)Float.parseFloat(pParts[2]);
+                for (Player p : this.world.players)
+                {
+                    if(p.id  ==id)
+                    {
+                        p.position =  new Vector2(Float.parseFloat(pParts[0]),Float.parseFloat(pParts[1]));
+                    }
+                }
+            }
         }
     }
 
@@ -197,8 +228,6 @@ public class Game extends Thread {
             this.client.send(builder.toString());
         }
     }
-
-
 
     public void updateMove(float deltatime)
     {
