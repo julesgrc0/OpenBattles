@@ -19,49 +19,41 @@ public class AssetsManager {
     public static File applicationPath;
     public static File assetsPath;
 
-    public static void Init()
-    {
+    public static void Init() {
         try {
-            applicationPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation()
-                    .toURI());
-            if( applicationPath.isFile()) {
+            applicationPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            if (applicationPath.isFile()) {
                 applicationPath = new File(applicationPath.getParent());
             }
             assetsPath = new File(applicationPath.getPath() + File.separator + "assets");
-        } catch (URISyntaxException ignored) {}
+        } catch (URISyntaxException ignored) {
+        }
     }
 
-    public static String getWorldDirectory()
-    {
+    public static String getWorldDirectory() {
         return applicationPath + File.separator + "save";
     }
 
-    public static Texture[] loadTextureDirectory(String name)
-    {
+    public static Texture[] loadTextureDirectory(String name) {
         List<Texture> textures = new ArrayList<>();
         File dir = new File(assetsPath.getPath() + File.separator + name);
-        if(dir.listFiles() != null)
-        {
+        if (dir.listFiles() != null) {
             for (final File fileEntry : dir.listFiles()) {
-                if (!fileEntry.isDirectory() && fileEntry.canRead())
-                {
-                    if(fileEntry.getName().endsWith(".png") || fileEntry.getName().endsWith(".jpg"))
-                    {
+                if (!fileEntry.isDirectory() && fileEntry.canRead()) {
+                    if (fileEntry.getName().endsWith(".png") || fileEntry.getName().endsWith(".jpg")) {
                         textures.add(new Texture(fileEntry.getPath()));
                     }
                 }
             }
         }
 
-
         return textures.toArray(new Texture[0]);
     }
 
-    public static Sound[] loadSoundDirectory(String name)
-    {
+    public static Sound[] loadSoundDirectory(String name) {
         List<Sound> soundList = new ArrayList<>();
         File dir = new File(assetsPath.getPath() + File.separator + name);
-        if(dir.listFiles() != null) {
+        if (dir.listFiles() != null) {
             for (final File fileEntry : dir.listFiles()) {
                 if (!fileEntry.isDirectory() && fileEntry.canRead()) {
                     if (fileEntry.getName().endsWith(".mp3") || fileEntry.getName().endsWith(".wav")) {

@@ -42,7 +42,7 @@ public class Texture {
             pixels.flip();
 
             this.id = glGenTextures();
-           this.bind();
+            this.bind();
 
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -50,7 +50,8 @@ public class Texture {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.size.width, this.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this.pixels);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.size.width, this.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                    this.pixels);
             glGenerateMipmap(GL_TEXTURE_2D);
 
             this.unbind();
@@ -79,13 +80,11 @@ public class Texture {
             glTexCoord2f(0, 0);
             glVertex2f(0, 0);
 
-
             glTexCoord2f(1, 0);
             glVertex2f(size.width, 0);
 
             glTexCoord2f(1, 1);
             glVertex2f(size.width, size.height);
-
 
             glTexCoord2f(0, 1);
             glVertex2f(0, size.height);

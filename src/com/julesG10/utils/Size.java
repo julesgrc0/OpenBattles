@@ -6,21 +6,18 @@ public class Size {
         this.height = h;
     }
 
-    public Size mult(int a)
-    {
-        return new Size(this.width*a,this.height*a);
+    public Size mult(int a) {
+        return new Size(this.width * a, this.height * a);
     }
 
-    public Size mult(Size a)
-    {
-        return new Size(this.width*a.width,this.height*a.height);
+    public Size mult(Size a) {
+        return new Size(this.width * a.width, this.height * a.height);
     }
 
     public int width;
     public int height;
 
-    public Vector2 toVector2()
-    {
-        return new Vector2(this.width,this.height);
+    public Vector2 toVector2() {
+        return new Vector2(this.width, this.height);
     }
 }

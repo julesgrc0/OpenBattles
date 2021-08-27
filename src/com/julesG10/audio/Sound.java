@@ -2,21 +2,18 @@ package com.julesG10.audio;
 
 import javax.sound.sampled.Clip;
 
-public class Sound{
+public class Sound {
     private int id;
     private Clip clip;
     private Thread soundThread;
 
-    public Sound(Clip clip,int id)
-    {
-        this.clip =clip;
+    public Sound(Clip clip, int id) {
+        this.clip = clip;
         this.id = id;
     }
 
-    public void play(int loop)
-    {
-        if(!this.isPlaying())
-        {
+    public void play(int loop) {
+        if (!this.isPlaying()) {
             clip.loop(loop);
 
             this.soundThread = new Thread(() -> {
@@ -27,39 +24,31 @@ public class Sound{
         }
     }
 
-    public void stop()
-    {
-        if(this.soundThread.isAlive())
-        {
+    public void stop() {
+        if (this.soundThread.isAlive()) {
             this.soundThread.interrupt();
         }
     }
 
-    public void pause()
-    {
-        if(this.clip.isRunning() && this.soundThread.isAlive())
-        {
+    public void pause() {
+        if (this.clip.isRunning() && this.soundThread.isAlive()) {
             this.clip.stop();
         }
     }
 
-    public boolean isPlaying()
-    {
+    public boolean isPlaying() {
         return this.clip.isRunning();
     }
 
-    public int getId()
-    {
+    public int getId() {
         return this.id;
     }
 
-    public long getTime()
-    {
+    public long getTime() {
         return this.clip.getMicrosecondPosition();
     }
 
-    public void setTime(long time)
-    {
+    public void setTime(long time) {
         this.clip.setMicrosecondPosition(time);
     }
 }

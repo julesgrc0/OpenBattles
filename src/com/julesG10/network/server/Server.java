@@ -11,12 +11,10 @@ public class Server {
     protected ServerSocket server;
     public boolean active = false;
 
-    public Server(boolean isPublic,int port)
-    {
-        if(isPublic)
-        {
+    public Server(boolean isPublic, int port) {
+        if (isPublic) {
             this.address = "";
-        }else{
+        } else {
             try {
                 this.address = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
@@ -24,9 +22,11 @@ public class Server {
                 this.address = "127.0.0.1";
             }
         }
-        Console.log("Set server address to "+this.address);
+        Console.log("Set server address to " + this.address);
         this.port = port;
     }
 
-    public boolean start() {return false;}
+    public boolean start() {
+        return false;
+    }
 }

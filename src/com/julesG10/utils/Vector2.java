@@ -26,9 +26,8 @@ public class Vector2 {
         return new Vector2(this.x + vector2.x, this.y + vector2.y);
     }
 
-    public Vector2 div(float a)
-    {
-        return new Vector2(this.x/a,this.y/a);
+    public Vector2 div(float a) {
+        return new Vector2(this.x / a, this.y / a);
     }
 
     public float x;
@@ -42,13 +41,11 @@ public class Vector2 {
         return (float) Math.sqrt(Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) * 1.0);
     }
 
-    public Vector2 roundTo(Vector2 vec)
-    {
-        return new Vector2((int)(this.x/vec.x)*vec.x,(int)(this.y/ vec.y)*vec.y);
+    public Vector2 roundTo(Vector2 vec) {
+        return new Vector2((int) (this.x / vec.x) * vec.x, (int) (this.y / vec.y) * vec.y);
     }
 
-    public Size toSize()
-    {
-        return new Size((int)this.x,(int)this.y);
+    public Size toSize() {
+        return new Size((int) this.x, (int) this.y);
     }
 }

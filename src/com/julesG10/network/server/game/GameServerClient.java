@@ -15,14 +15,13 @@ public class GameServerClient extends ServerClient {
     public GamePlayer player;
     public int id;
 
-    public List<Pair<GamePlayer,GameServerClient>> players = new ArrayList<>();
+    public List<Pair<GamePlayer, GameServerClient>> players = new ArrayList<>();
 
     public GameServerClient(Socket client) {
         super(client);
     }
 
-    public boolean isActive()
-    {
+    public boolean isActive() {
         return this.client.isConnected();
     }
 
@@ -31,24 +30,19 @@ public class GameServerClient extends ServerClient {
         super.RunClient();
         this.init();
 
-        while (this.client.isConnected())
-        {
+        while (this.client.isConnected()) {
             String data = this.receive();
-            if(data == null)
-            {
+            if (data == null) {
                 Console.log("Client Leave");
                 break;
-            }
-            else if(!this.onData(data))
-            {
+            } else if (!this.onData(data)) {
                 break;
             }
         }
         this.close();
     }
 
-    public void init()
-    {
+    public void init() {
         this.player.id = this.id;
 
         StringBuilder builder = new StringBuilder();
@@ -59,15 +53,12 @@ public class GameServerClient extends ServerClient {
         this.send(builder.toString());
     }
 
-
-    public void generalPlayerUpdate()
-    {
+    public void generalPlayerUpdate() {
         StringBuilder data = new StringBuilder(GameNetworkCodes.PLAYER_GENERAL_UPDATE.ordinal());
         data.append("|");
 
         Object[] objs = this.players.toArray();
-        for (Object obj : objs)
-        {
+        for (Object obj : objs) {
             Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
 
             String pData = entry.getKey().toString();
@@ -76,79 +67,50 @@ public class GameServerClient extends ServerClient {
         this.send(data.toString());
     }
 
-    public void update()
-    {
+    public void update() {
         Object[] objs = this.players.toArray();
-        for (Object obj : objs)
-        {
+        for (Object obj : objs) {
             Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
-            this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_UPDATE));
+            this.send(GameNetworkCodes.PLAYER_UPDATE.ordinal() + "|" + entry.getKey().toString());
         }
     }
 
-    private boolean onData(String data)
-    {
+    private boolean onData(String data) {
         String[] parts = data.split("\\|");
-        if(parts.length == 0)
-        {
+        if (parts.length == 0) {
             return true;
         }
 
-        GameNetworkCodes code = GameNetworkCodes.values()[(int)Float.parseFloat(parts[0])];
+        GameNetworkCodes code = GameNetworkCodes.values()[(int) Float.parseFloat(parts[0])];
 
-        if(code == GameNetworkCodes.EXIT)
-        {
+        if (code == GameNetworkCodes.EXIT) {
             return false;
-        }else if(code == GameNetworkCodes.PLAYER_UPDATE)
-        {
-            int id = (int)Float.parseFloat(parts[1]);
+        } else if (code == GameNetworkCodes.PLAYER_UPDATE) {
+            int id = (int) Float.parseFloat(parts[1]);
 
-            if(this.player.id == id)
-            {
-                Vector2 position = new Vector2(Float.parseFloat(parts[2]),Float.parseFloat(parts[3]));
-                int life = (int)Float.parseFloat(parts[4]);
+            if (this.player.id == id) {
+                Vector2 position = new Vector2(Float.parseFloat(parts[2]), Float.parseFloat(parts[3]));
+                int life = (int) Float.parseFloat(parts[4]);
                 long time = Long.parseLong(parts[5]);
 
                 this.player.position = position;
                 this.player.life = life;
-                this.player.time = (long)((System.nanoTime() - time) * Math.pow(10,-6));
+                this.player.time = (long) ((System.nanoTime() - time) * Math.pow(10, -6));
             }
-        }else if(code == GameNetworkCodes.INIT)
-        {
-            int id = (int)Float.parseFloat(parts[1]);
+        } else if (code == GameNetworkCodes.INIT) {
+            int id = (int) Float.parseFloat(parts[1]);
 
-            if(this.player.id == id)
-            {
-                Vector2 position = new Vector2(Float.parseFloat(parts[2]),Float.parseFloat(parts[3]));
-                int life = (int)Float.parseFloat(parts[4]);
+            if (this.player.id == id) {
+                Vector2 position = new Vector2(Float.parseFloat(parts[2]), Float.parseFloat(parts[3]));
+                int life = (int) Float.parseFloat(parts[4]);
                 long time = Long.parseLong(parts[5]);
 
                 this.player.position = position;
                 this.player.life = life;
-                this.player.time = (long)((System.nanoTime() - time) * Math.pow(10,-6));
+                this.player.time = (long) ((System.nanoTime() - time) * Math.pow(10, -6));
             }
         }
 
         return true;
     }
-
-   /* public void sendAdd() {
-        this.clear();
-        Object[] objs = this.players.toArray();
-        for (Object obj : objs)
-        {
-            Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
-
-            if(entry.getValue().id != this.id)
-            {
-                this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_ADD));
-            }
-        }
-    }
-
-      public void clear()
-    {
-        this.send(GameNetworkCodes.PLAYER_CLEAR.ordinal()+"|");
-    }
-    */
 }

@@ -32,8 +32,7 @@ public class Client {
         }
     }
 
-    public void close()
-    {
+    public void close() {
         try {
             this.reader.close();
             this.writer.close();
@@ -50,10 +49,9 @@ public class Client {
                 int character;
                 StringBuilder data = new StringBuilder();
                 while ((character = reader.read()) != -1) {
-                   if(character == 0)
-                   {
-                       break;
-                   }
+                    if (character == 0) {
+                        break;
+                    }
                     data.append((char) character);
                 }
                 return data.toString();

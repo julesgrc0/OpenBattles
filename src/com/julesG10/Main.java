@@ -34,7 +34,7 @@ public class Main {
     private World world;
     private Client gameClient;
 
-    private Size userSize = new Size(-1,-1);
+    private Size userSize = new Size(-1, -1);
     private boolean saveWorld = false;
     private boolean showFps = false;
     private boolean showGrid = false;
@@ -45,86 +45,75 @@ public class Main {
     private int clientPort;
 
     private boolean serverMode = false;
-    private boolean publicServer =false;
+    private boolean publicServer = false;
     private int serverPort;
 
     private boolean consoleMode = false;
 
-    public void run()
-    {
+    public void run() {
         Console.active = this.consoleMode;
-        if(!this.consoleMode)
-        {
-            if(this.init())
-            {
+        if (!this.consoleMode) {
+            if (this.init()) {
                 this.loop();
 
-                if(this.saveWorld)
-                {
+                if (this.saveWorld) {
                     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
                     LocalDateTime now = LocalDateTime.now();
-                    WorldLoader.generate(this.world,AssetsManager.getWorldDirectory() + File.separator + dtf.format(now) + ".map");
+                    WorldLoader.generate(this.world,
+                            AssetsManager.getWorldDirectory() + File.separator + dtf.format(now) + ".map");
                 }
-
 
                 glfwFreeCallbacks(window);
                 glfwDestroyWindow(window);
             }
 
             glfwTerminate();
-        }else{
+        } else {
             Console.log("Console Mode");
-            if(this.serverMode)
-            {
+            if (this.serverMode) {
                 Console.log("Starting server");
                 GameServer server = new GameServer(this.publicServer, this.serverPort);
                 server.start();
-            }else if(this.clientMode)
-            {
+            } else if (this.clientMode) {
                 Console.log("Init client");
                 String host = "127.0.0.1";
                 int port = 0;
                 Scanner scanner = new Scanner(System.in);
 
-                if(this.clientAddress != null)
-                {
-                   host = this.clientAddress;
-                }else{
+                if (this.clientAddress != null) {
+                    host = this.clientAddress;
+                } else {
                     System.out.print("(hostname)>");
-                    host =  scanner.nextLine();
+                    host = scanner.nextLine();
                 }
 
-                if(this.clientPort != 0)
-                {
-                   port = this.clientPort;
-                }else{
+                if (this.clientPort != 0) {
+                    port = this.clientPort;
+                } else {
                     System.out.print("(port)>");
-                    port = (int)Float.parseFloat(scanner.nextLine());
+                    port = (int) Float.parseFloat(scanner.nextLine());
                 }
 
-                Client client= new Client(host,port);
-                Console.log("Trying connect client to "+host+":"+port);
+                Client client = new Client(host, port);
+                Console.log("Trying connect client to " + host + ":" + port);
 
-                if(client.connect(5000))
-                {
+                if (client.connect(5000)) {
                     Console.log("Client connected");
-                    while (client.client.isConnected())
-                    {
+                    while (client.client.isConnected()) {
                         System.out.print("(send) -> ");
                         String input = scanner.nextLine();
                         client.send(input);
 
                         String data = client.receive();
-                        if(data == null)
-                        {
-                          break;
+                        if (data == null) {
+                            break;
                         }
 
-                        System.out.println("(receive) -> "+data);
+                        System.out.println("(receive) -> " + data);
                     }
                     client.close();
                     Console.log("Client close");
-                }else{
+                } else {
                     Console.log("Fail to connect the client");
                 }
             }
@@ -132,10 +121,8 @@ public class Main {
         }
     }
 
-    private boolean init()
-    {
-        if (!glfwInit())
-        {
+    private boolean init() {
+        if (!glfwInit()) {
             return false;
         }
 
@@ -146,45 +133,41 @@ public class Main {
         glfwWindowHint(GLFW_BLUE_BITS, this.glfwVidMode.blueBits());
         glfwWindowHint(GLFW_REFRESH_RATE, this.glfwVidMode.refreshRate());
 
-        size = new Size(this.glfwVidMode.width(),this.glfwVidMode.height());
-        if(fullscreen)
-        {
-            window = glfwCreateWindow(size.width, size.height,TITLE, monitor, NULL);
-            if (window == NULL)
-            {
+        size = new Size(this.glfwVidMode.width(), this.glfwVidMode.height());
+        if (fullscreen) {
+            window = glfwCreateWindow(size.width, size.height, TITLE, monitor, NULL);
+            if (window == NULL) {
                 return false;
             }
-            glfwSetWindowMonitor(window,monitor,0,0,size.width,size.height,this.glfwVidMode.refreshRate());
-        }else{
-            if(this.userSize.width != -1 && this.userSize.height != -1)
-            {
+            glfwSetWindowMonitor(window, monitor, 0, 0, size.width, size.height, this.glfwVidMode.refreshRate());
+        } else {
+            if (this.userSize.width != -1 && this.userSize.height != -1) {
                 size = this.userSize;
             }
 
-            window = glfwCreateWindow(size.width, size.height,TITLE, NULL, NULL);
-            if (window == NULL)
-            {
+            window = glfwCreateWindow(size.width, size.height, TITLE, NULL, NULL);
+            if (window == NULL) {
                 return false;
             }
         }
 
-
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_CURSOR_HIDDEN,GLFW_TRUE);
-        glfwWindowHint( GLFW_DOUBLEBUFFER, GL_FALSE );
+        glfwWindowHint(GLFW_CURSOR_HIDDEN, GLFW_TRUE);
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GL_FALSE);
 
-        glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint (GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint (GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        glfwSetWindowPos(window, (this.glfwVidMode.width() - this.size.width) / 2, (this.glfwVidMode.height() - this.size.height) / 2);
+        glfwSetWindowPos(window, (this.glfwVidMode.width() - this.size.width) / 2,
+                (this.glfwVidMode.height() - this.size.height) / 2);
 
         glfwMakeContextCurrent(window);
         glfwSwapInterval(0);
-        //  VerticalSync
+        // VerticalSync
         glfwSwapInterval(GLFW_FALSE);
 
         glfwShowWindow(window);
@@ -193,36 +176,32 @@ public class Main {
         return true;
     }
 
-    private void initGame()
-    {
-        Block.size = new Size(size.width/10,size.height/10);
+    private void initGame() {
+        Block.size = new Size(size.width / 10, size.height / 10);
         Player.size = Block.size;
 
-        this.world  = new World();
-        this.gameClient = new Client(this.clientAddress,this.clientPort);
+        this.world = new World();
+        this.gameClient = new Client(this.clientAddress, this.clientPort);
         world.addPlayer(new Player());
-        world.camera = new Camera(new Vector2(0,0),size);
+        world.camera = new Camera(new Vector2(0, 0), size);
 
         // player textures
-        String[] playerAnimations = {"left","right","top","bottom"};
-        for (int i=0;i<playerAnimations.length;i++)
-        {
-            Texture[] t  = AssetsManager.loadTextureDirectory("player"+ File.separator + playerAnimations[i]).clone();
+        String[] playerAnimations = { "left", "right", "top", "bottom" };
+        for (int i = 0; i < playerAnimations.length; i++) {
+            Texture[] t = AssetsManager.loadTextureDirectory("player" + File.separator + playerAnimations[i]).clone();
             world.players.get(0).textures.add(t);
         }
         world.players.get(0).texture = world.players.get(0).textures.get(0)[0];
 
         // world setup
         List<Chunk> chunkList = new ArrayList<>();
-        Chunk chunk = new Chunk(new Vector2(0,0));
-        Texture[] blockTextures = {new Texture(AssetsManager.assetsPath+File.separator+"block.png")};
+        Chunk chunk = new Chunk(new Vector2(0, 0));
+        Texture[] blockTextures = { new Texture(AssetsManager.assetsPath + File.separator + "block.png") };
 
-        for (int x=0;x < Chunk.size.width;x++)
-        {
-            for (int y=0;y<Chunk.size.height;y++)
-            {
+        for (int x = 0; x < Chunk.size.width; x++) {
+            for (int y = 0; y < Chunk.size.height; y++) {
                 Block block = new Block();
-                block.position = new Vector2(x * Block.size.width,y * Block.size.height);
+                block.position = new Vector2(x * Block.size.width, y * Block.size.height);
                 block.textures = blockTextures.clone();
                 chunk.blocks[x * Chunk.size.width + y] = block;
             }
@@ -234,61 +213,56 @@ public class Main {
     private void loop() {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glViewport(0, 0, this.size.width,this.size.height);
+        glViewport(0, 0, this.size.width, this.size.height);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
-        glOrtho(0,this.size.width,this.size.height,0,1,-1);
+        glOrtho(0, this.size.width, this.size.height, 0, 1, -1);
         glMatrixMode(GL_MODELVIEW);
 
-        if(!glIsEnabled(GL_BLEND))
-        {
+        if (!glIsEnabled(GL_BLEND)) {
             glEnable(GL_BLEND);
         }
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        if(!glIsEnabled(GL_TEXTURE_2D))
-        {
+        if (!glIsEnabled(GL_TEXTURE_2D)) {
             glEnable(GL_TEXTURE_2D);
         }
 
         this.initGame();
 
-        Game game = new Game(this.window,this.world, this.gameClient);
+        Game game = new Game(this.window, this.world, this.gameClient);
         game.start();
 
         Timer timer = new Timer();
-        while (!glfwWindowShouldClose(window) )
-        {
+        while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             float deltatime = timer.restart();
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             this.world.render();
 
-            //Vector2 b = game.getPositionItemCamera(game.mousePosition(),world.players.get(0).position,world.camera.position,Main.size.toVector2().div(2),Block.size);
+            // Vector2 b =
+            // game.getPositionItemCamera(game.mousePosition(),world.players.get(0).position,world.camera.position,Main.size.toVector2().div(2),Block.size);
 
-            if(this.showGrid)
-            {
+            if (this.showGrid) {
                 this.renderBlockGrid(game);
             }
 
-            if(this.showFps)
-            {
-                System.out.print("\rFPS "+(1.0/deltatime));
+            if (this.showFps) {
+                System.out.print("\rFPS " + (1.0 / deltatime));
             }
             glfwSwapBuffers(window);
 
         }
     }
 
-    public void renderBlockGrid(Game game)
-    {
+    public void renderBlockGrid(Game game) {
         World world = game.world;
-        for (int x = 0;x <= Main.size.width;x+= Block.size.width)
-        {
-            for (int y = 0;y <= Main.size.height;y+= Block.size.height) {
-                Vector2 b = game.getPositionItemCamera(new Vector2(x, y), world.players.get(0).position, world.camera.position, Main.size.toVector2().div(2), Block.size);
+        for (int x = 0; x <= Main.size.width; x += Block.size.width) {
+            for (int y = 0; y <= Main.size.height; y += Block.size.height) {
+                Vector2 b = CameraUtils.getPositionItemCamera(new Vector2(x, y), world.players.get(0).position,
+                        world.camera.position, Main.size.toVector2().div(2), Block.size);
                 glBegin(GL_LINE_LOOP);
                 glVertex2f(b.x, b.y);
                 glVertex2f(Block.size.width + b.x, b.y);
@@ -299,37 +273,33 @@ public class Main {
         }
     }
 
-    public void parseArgs(String[] args)
-    {
-        for (String arg : args)
-        {
-            if(arg.startsWith("-"))
-            {
+    public void parseArgs(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("-")) {
                 String tmp = arg;
                 tmp = tmp.substring(1);
                 tmp = tmp.toLowerCase();
                 String[] data = tmp.split("=");
 
-                if(data.length == 2)
-                {
-                    switch (data[0])
-                    {
+                if (data.length == 2) {
+                    switch (data[0]) {
                         case "fps":
                             this.showFps = (data[1].equals("true") ? true : false);
                             break;
                         case "grid":
-                            this.showGrid = (data[1].equals("true")  ? true : false);
+                            this.showGrid = (data[1].equals("true") ? true : false);
                             break;
 
-                            // Bug  Camera + Block size
+                        // Bug Camera + Block size
 
                         case "fullscreen":
-                            this.fullscreen = (data[1].equals("true")  ? true : false);
+                            this.fullscreen = (data[1].equals("true") ? true : false);
                             break;
                         case "size":
                             String[] sizeData = data[1].split("x");
-                            if(sizeData.length == 2) {
-                                this.userSize = new Size((int)Float.parseFloat(sizeData[0]),(int)Float.parseFloat(sizeData[1]));
+                            if (sizeData.length == 2) {
+                                this.userSize = new Size((int) Float.parseFloat(sizeData[0]),
+                                        (int) Float.parseFloat(sizeData[1]));
 
                             }
                             break;
@@ -341,16 +311,18 @@ public class Main {
                             this.saveWorld = (data[1].equals("true") ? true : false);
                             break;
                         case "server":
-                            this.serverMode = (data[1].equals("true") ? true : false);;
+                            this.serverMode = (data[1].equals("true") ? true : false);
+                            ;
                             this.clientMode = !this.serverMode;
                             break;
                         case "client":
-                            this.clientMode = (data[1].equals("true") ? true : false);;
+                            this.clientMode = (data[1].equals("true") ? true : false);
+                            ;
                             this.serverMode = !this.clientMode;
                             break;
                         case "port":
-                            this.clientPort = (int)Float.parseFloat(data[1]);
-                            this.serverPort = (int)Float.parseFloat(data[1]);
+                            this.clientPort = (int) Float.parseFloat(data[1]);
+                            this.serverPort = (int) Float.parseFloat(data[1]);
                             break;
                         case "address":
                             this.clientAddress = data[1];
@@ -365,21 +337,19 @@ public class Main {
     }
 
     public static void main(String[] args) {
-       Main main = new Main();
-       main.parseArgs(args);
-       // SERVER  -window=false -server=true -public=false -port=8080
-        // CLIENT -window=false -server=false -public=false -port=8080 -address=192.168.1.16
-       // CLIENT WINDOW -server=false -public=false -port=8080 -address=192.168.1.16 -window=true -fullscreen=false -size=500x500
-       main.run();
+        Main main = new Main();
+        main.parseArgs(args);
+        // SERVER -window=false -server=true -public=false -port=8080
+        // CLIENT -window=false -server=false -public=false -port=8080
+        // -address=192.168.1.16
+        // CLIENT WINDOW -server=false -public=false -port=8080 -address=192.168.1.16
+        // -window=true -fullscreen=false -size=500x500
+        main.run();
     }
 
-
     /*
-     glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-            {
-                glfwSetWindowShouldClose(window, true);
-            }
-        });
-    */
+     * glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> { if (key
+     * == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+     * glfwSetWindowShouldClose(window, true); } });
+     */
 }

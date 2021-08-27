@@ -14,10 +14,8 @@ public class Camera {
     }
 
     public boolean isInView(Vector2 position, Size size) {
-        return this.position.x < position.x + size.width &&
-                this.position.x + this.size.width > position.x &&
-                this.position.y < position.y + size.height &&
-                this.position.y + this.size.height > position.y;
+        return this.position.x < position.x + size.width && this.position.x + this.size.width > position.x
+                && this.position.y < position.y + size.height && this.position.y + this.size.height > position.y;
     }
 
     public boolean active = true;

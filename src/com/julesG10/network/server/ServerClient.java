@@ -1,12 +1,11 @@
 package com.julesG10.network.server;
 
-
 import com.julesG10.utils.Console;
 
 import java.io.*;
 import java.net.Socket;
 
-public class ServerClient extends  Thread {
+public class ServerClient extends Thread {
     protected Socket client;
     protected DataInputStream reader;
     protected DataOutputStream writer;
@@ -19,10 +18,9 @@ public class ServerClient extends  Thread {
             this.writer = new DataOutputStream(this.client.getOutputStream());
             this.reader = new DataInputStream(this.client.getInputStream());
         } catch (IOException e) {
-           Console.log(e.getMessage());
+            Console.log(e.getMessage());
         }
     }
-
 
     protected boolean send(String data) {
         try {
@@ -37,8 +35,7 @@ public class ServerClient extends  Thread {
         }
     }
 
-    protected void close()
-    {
+    protected void close() {
         try {
             this.reader.close();
             this.writer.close();
@@ -67,7 +64,8 @@ public class ServerClient extends  Thread {
         }
     }
 
-    public void RunClient() {}
+    public void RunClient() {
+    }
 
     @Override
     public void run() {
