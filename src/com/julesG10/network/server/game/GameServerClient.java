@@ -60,40 +60,30 @@ public class GameServerClient extends ServerClient {
     }
 
 
-    public void clearUpdate()
+    public void generalPlayerUpdate()
     {
         StringBuilder data = new StringBuilder(GameNetworkCodes.PLAYER_GENERAL_UPDATE.ordinal());
         data.append("|");
-        for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
+
+        Object[] objs = this.players.toArray();
+        for (Object obj : objs)
         {
-            GameServerClient client = entry.getValue();
+            Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
 
-            if(client.id != this.id)
-            {
-                String pData = entry.getKey().toString();
-                data.append(pData.replaceAll("\\|", ";")).append("|");
-            }
+            String pData = entry.getKey().toString();
+            data.append(pData.replaceAll("\\|", ";")).append("|");
         }
-
         this.send(data.toString());
     }
 
     public void update()
     {
-        for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
+        Object[] objs = this.players.toArray();
+        for (Object obj : objs)
         {
-            GameServerClient client = entry.getValue();
-
-            if(client.id != this.id)
-            {
-                this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_UPDATE));
-            }
+            Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
+            this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_UPDATE));
         }
-    }
-
-    public void clear()
-    {
-        this.send(GameNetworkCodes.PLAYER_CLEAR.ordinal()+"|");
     }
 
     private boolean onData(String data)
@@ -122,8 +112,6 @@ public class GameServerClient extends ServerClient {
                 this.player.position = position;
                 this.player.life = life;
                 this.player.time = (long)((System.nanoTime() - time) * Math.pow(10,-6));
-
-                //this.update();
             }
         }else if(code == GameNetworkCodes.INIT)
         {
@@ -144,16 +132,23 @@ public class GameServerClient extends ServerClient {
         return true;
     }
 
-    public void sendAdd() {
+   /* public void sendAdd() {
         this.clear();
-        for (Map.Entry<GamePlayer, GameServerClient> entry : this.players)
+        Object[] objs = this.players.toArray();
+        for (Object obj : objs)
         {
-            GameServerClient client = entry.getValue();
+            Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
 
-            if(client.id != this.id)
+            if(entry.getValue().id != this.id)
             {
-                this.send( entry.getKey().toString(GameNetworkCodes.PLAYER_ADD));
+                this.send(entry.getKey().toString(GameNetworkCodes.PLAYER_ADD));
             }
         }
     }
+
+      public void clear()
+    {
+        this.send(GameNetworkCodes.PLAYER_CLEAR.ordinal()+"|");
+    }
+    */
 }

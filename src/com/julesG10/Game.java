@@ -132,12 +132,13 @@ public class Game extends Thread {
                     }
                 }
             }
-        }else if(code == GameNetworkCodes.PLAYER_ADD)
+        }
+        /*else if(code == GameNetworkCodes.PLAYER_ADD)
         {
             Player player = new Player();
-            player.position =  new Vector2(Float.parseFloat(parts[0]),Float.parseFloat(parts[1]));
+            player.position =  new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
             player.texture_index = 0;
-            player.id = (int)Float.parseFloat(parts[2]);
+            player.id = (int)Float.parseFloat(parts[0]);
 
             player.textures = this.world.players.get(0).textures;
             player.texture = this.world.players.get(0).texture;
@@ -148,39 +149,86 @@ public class Game extends Thread {
         {
             int id = this.world.players.get(0).id;
             this.world.players.removeIf(player -> player.id != id);
-        }else if(code == GameNetworkCodes.PLAYER_UPDATE && parts.length >= 3)
+        }*/
+        else if(code == GameNetworkCodes.PLAYER_UPDATE  && parts.length != 0)
         {
             int mainId = this.world.players.get(0).id;
             int id = (int)Float.parseFloat(parts[0]);
+            if(id == mainId)
+            {
+                return;
+            }
+            boolean find = false;
             for (Player p : this.world.players)
             {
-                if(p.id != mainId && p.id == id)
+                if(p.id == id)
                 {
+                    find = true;
                     p.position = new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
                     break;
                 }
             }
-        }else if(code == GameNetworkCodes.INIT  && parts.length >= 1)
+
+            if(!find)
+            {
+               this.addFromParts(parts);
+            }
+
+        }else if(code == GameNetworkCodes.INIT)
         {
             this.world.players.get(0).id = (int)Float.parseFloat(parts[0]);
             this.sendInit();
 
         }else if(code == GameNetworkCodes.PLAYER_GENERAL_UPDATE && parts.length != 0)
         {
-            System.out.println(code + " "+String.join(" ",parts));
+            int mainId =  this.world.players.get(0).id;
+            this.world.players.removeIf(player -> player.id != mainId);
+            System.out.println(this.world.players.size());
             for (String pData : parts)
             {
                 String[] pParts = pData.split(";");
                 int id = (int)Float.parseFloat(pParts[2]);
+                if(id != mainId)
+                {
+                    this.addFromParts(pParts);
+                }
+
+                /*int id = (int)Float.parseFloat(pParts[2]);
+                boolean find = false;
+
                 for (Player p : this.world.players)
                 {
-                    if(p.id  ==id)
+                    if(p.id  == id)
                     {
+                        find = true;
                         p.position =  new Vector2(Float.parseFloat(pParts[0]),Float.parseFloat(pParts[1]));
+                        break;
                     }
                 }
+
+                if(!find)
+                {
+                    this.addFromParts(pParts);
+                }*/
             }
+
+            System.out.println(this.world.players.size());
+        }else{
+            System.out.println("DATA ERROR: "+data );
         }
+    }
+
+    public void addFromParts(String[] parts)
+    {
+        Player player = new Player();
+        player.position =  new Vector2(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
+        player.texture_index = 0;
+        player.id = (int)Float.parseFloat(parts[0]);
+
+        player.textures = this.world.players.get(0).textures;
+        player.texture = this.world.players.get(0).texture;
+
+        this.world.addPlayer(player);
     }
 
     public void sendInit()

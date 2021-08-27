@@ -111,7 +111,7 @@ public class Console {
             LocalDateTime now = LocalDateTime.now();
 
             reset();
-            color(Color.BLACK);
+            color(Color.GREEN_BRIGHT);
             System.out.print("["+dtf.format(now)+"] ");
             color(Color.CYAN);
             System.out.print("INFO: ");

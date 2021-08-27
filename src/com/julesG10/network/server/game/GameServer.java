@@ -9,9 +9,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameServer extends Server {
 
@@ -57,8 +56,6 @@ public class GameServer extends Server {
                 this.id++;
                 this.addClient(socket);
                 this.startLastClient();
-
-                this.clearUpdateClients();
             } catch (IOException e)
             {
                 Console.log(e.getMessage());
@@ -84,40 +81,50 @@ public class GameServer extends Server {
         client.player = clients.get(clients.size()-1).getKey();
         client.id = this.id;
         client.start();
-
-        this.updateClients();
-        for (Pair<GamePlayer, GameServerClient> pair : clients) {
-            pair.getValue().sendAdd();
-        }
     }
 
     public void checkClientsConnections()
     {
+        AtomicBoolean generalUpdate = new AtomicBoolean(false);
+        int after = this.clients.size();
         clients.removeIf(entry -> {
             if(!entry.getValue().isAlive() || !entry.getValue().isActive())
             {
-                this.clearUpdateClients();
+                generalUpdate.set(true);
                 entry.getValue().interrupt();
+                Console.log("Close Client Thread "+entry.getValue().getId()+"");
                 return true;
             }else{
                 return false;
             }
         });
 
+        if(generalUpdate.get())
+        {
+            this.generalPlayersUpdate();
+        }
+
         this.updateClients();
     }
 
-    public void clearUpdateClients()
+    public void generalPlayersUpdate()
     {
-        for (Pair<GamePlayer, GameServerClient> pair : clients) {
-            pair.getValue().clearUpdate();
+        Object[] objs = this.clients.toArray();
+        for (Object obj : objs)
+        {
+            Pair<GamePlayer, GameServerClient> pair = (Pair<GamePlayer, GameServerClient>) obj;
+            pair.getValue().generalPlayerUpdate();
         }
     }
 
     public void updateClients() {
-        for (Pair<GamePlayer, GameServerClient> pair : clients) {
+        Object[] objs = this.clients.toArray();
+        for (Object obj : objs)
+        {
+            Pair<GamePlayer, GameServerClient> pair = (Pair<GamePlayer, GameServerClient>) obj;
+
             pair.setKey(pair.getValue().player);
-            pair.getValue().players = clients;
+            pair.getValue().players = this.clients;
             pair.getValue().update();
         }
     }

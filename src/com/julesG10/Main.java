@@ -369,6 +369,7 @@ public class Main {
        main.parseArgs(args);
        // SERVER  -window=false -server=true -public=false -port=8080
         // CLIENT -window=false -server=false -public=false -port=8080 -address=192.168.1.16
+       // CLIENT WINDOW -server=false -public=false -port=8080 -address=192.168.1.16 -window=true -fullscreen=false -size=500x500
        main.run();
     }
 
