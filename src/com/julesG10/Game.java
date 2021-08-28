@@ -108,6 +108,7 @@ public class Game extends Thread {
             this.world.players.removeIf(player -> player.id != id);
         } else if (code == GameNetworkCodes.PLAYER_UPDATE) {
             int mainId = this.world.players.get(0).id;
+
             int id = (int) Float.parseFloat(parts[0]);
             if (id == mainId) {
                 return;
