@@ -49,9 +49,15 @@ public class Main {
     private int serverPort;
 
     private boolean consoleMode = false;
+    private boolean debugConsole = false;
 
     public void run() {
         Console.active = this.consoleMode;
+        if(this.debugConsole)
+        {
+            Console.active = true;
+        }
+
         if (!this.consoleMode) {
             if (this.init()) {
                 this.loop();
@@ -304,6 +310,9 @@ public class Main {
                             }
                             break;
 
+                        case "debug":
+                            this.debugConsole = (data[1].equals("true") ? true : false);
+                            break;
                         case "window":
                             this.consoleMode = !(data[1].equals("true") ? true : false);
                             break;

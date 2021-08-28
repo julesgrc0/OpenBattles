@@ -12,17 +12,43 @@ import java.util.List;
 public class Player {
     public Player() {
 
+
+    }
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(id);
+        builder.append("|");
+        builder.append(position.x);
+        builder.append("|");
+        builder.append(position.y);
+        builder.append("|");
+        builder.append(life);
+        return builder.toString();
     }
 
+    public void setString(String str)
+    {
+        String[] parts = str.split("\\|");
+        if(parts.length == 5)
+        {
+            this.id = Integer.parseInt(parts[0]);
+            this.position.x = Float.parseFloat(parts[1]);
+            this.position.y = Float.parseFloat(parts[2]);
+            this.life = Integer.parseInt(parts[3]);
+        }
+    }
+
+
     public Vector2 position = new Vector2(0, 0);
-    public int life;
+    public int life = 0;
     public static Size size = new Size(0, 0);
 
     public Texture texture;
     public List<Texture[]> textures = new ArrayList<>();
-    public int texture_index;
-    public int id;
-    private float time;
+    public int texture_index = 0;
+    public int id = 0;
+    private float time = 0;
 
     private PlayerDirection direction = PlayerDirection.TOP;
 

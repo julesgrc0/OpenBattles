@@ -1,5 +1,6 @@
 package com.julesG10.network.server.game;
 
+import com.julesG10.game.player.Player;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.network.server.ServerClient;
 import com.julesG10.utils.Console;
@@ -8,29 +9,33 @@ import com.julesG10.utils.Vector2;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class GameServerClient extends ServerClient {
-    public GamePlayer player;
+    public boolean hasUpdate = false;
+    public String updateContent;
     public int id;
-
-    public List<Pair<GamePlayer, GameServerClient>> players = new ArrayList<>();
 
     public GameServerClient(Socket client) {
         super(client);
     }
 
-    public boolean isActive() {
-        return this.client.isConnected();
+    public boolean Active()
+    {
+        return this.client.isConnected() && this.isAlive();
     }
 
     @Override
     public void RunClient() {
         super.RunClient();
-        this.init();
 
-        while (this.client.isConnected()) {
+        Player pTmp = new Player();
+        pTmp.id = this.id;
+        this.send(GameNetworkCodes.PLAYER_INIT.ordinal()+"|"+pTmp.toString());
+
+        while (this.Active()) {
             String data = this.receive();
             if (data == null) {
                 Console.log("Client Leave");
@@ -42,75 +47,74 @@ public class GameServerClient extends ServerClient {
         this.close();
     }
 
-    public void init() {
-        this.player.id = this.id;
 
-        StringBuilder builder = new StringBuilder();
-        builder.append(GameNetworkCodes.INIT.ordinal());
-        builder.append("|");
-        builder.append(this.id);
-
-        this.send(builder.toString());
-    }
-
-    public void generalPlayerUpdate() {
-        StringBuilder data = new StringBuilder(GameNetworkCodes.PLAYER_GENERAL_UPDATE.ordinal());
-        data.append("|");
-
-        Object[] objs = this.players.toArray();
-        for (Object obj : objs) {
-            Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
-
-            String pData = entry.getKey().toString();
-            data.append(pData.replaceAll("\\|", ";")).append("|");
-        }
-        this.send(data.toString());
-    }
-
-    public void update() {
-        Object[] objs = this.players.toArray();
-        for (Object obj : objs) {
-            Pair<GamePlayer, GameServerClient> entry = (Pair<GamePlayer, GameServerClient>) obj;
-            this.send(GameNetworkCodes.PLAYER_UPDATE.ordinal() + "|" + entry.getKey().toString());
-        }
-    }
-
-    private boolean onData(String data) {
-        String[] parts = data.split("\\|");
-        if (parts.length == 0) {
-            return true;
-        }
-
-        GameNetworkCodes code = GameNetworkCodes.values()[(int) Float.parseFloat(parts[0])];
-
-        if (code == GameNetworkCodes.EXIT) {
+    private boolean onData(String data)
+    {
+        if(data == null)
+        {
             return false;
-        } else if (code == GameNetworkCodes.PLAYER_UPDATE) {
-            int id = (int) Float.parseFloat(parts[1]);
-
-            if (this.player.id == id) {
-                Vector2 position = new Vector2(Float.parseFloat(parts[2]), Float.parseFloat(parts[3]));
-                int life = (int) Float.parseFloat(parts[4]);
-                long time = Long.parseLong(parts[5]);
-
-                this.player.position = position;
-                this.player.life = life;
-                this.player.time = (long) ((System.nanoTime() - time) * Math.pow(10, -6));
-            }
-        } else if (code == GameNetworkCodes.INIT) {
-            int id = (int) Float.parseFloat(parts[1]);
-
-            if (this.player.id == id) {
-                Vector2 position = new Vector2(Float.parseFloat(parts[2]), Float.parseFloat(parts[3]));
-                int life = (int) Float.parseFloat(parts[4]);
-                long time = Long.parseLong(parts[5]);
-
-                this.player.position = position;
-                this.player.life = life;
-                this.player.time = (long) ((System.nanoTime() - time) * Math.pow(10, -6));
-            }
         }
 
+        String[] parts = data.split("\\|");
+        GameNetworkCodes code = GameNetworkCodes.values()[Integer.parseInt(parts[0])];
+        parts = Arrays.copyOfRange(parts,1,parts.length);
+
+        if(code == GameNetworkCodes.PLAYER_UPDATE)
+        {
+            this.hasUpdate = true;
+            this.updateContent = data;
+        }
+        else if(code == GameNetworkCodes.PING)
+        {
+            this.send(GameNetworkCodes.PING.ordinal()+"|"+System.nanoTime());
+        }
         return true;
+    }
+
+    public void update(List<GameServerClient> clients)
+    {
+        if(this.hasUpdate && this.updateContent != null)
+        {
+
+            for (GameServerClient client : clients)
+            {
+                if(client.getId() != this.getId())
+                {
+                    client.send(this.updateContent);
+                }
+            }
+
+            this.hasUpdate = false;
+            this.updateContent = null;
+        }
+    }
+
+    public void add(List<GameServerClient> clients, int clientId)
+    {
+        Player pTmp = new Player();
+        pTmp.id = clientId;
+        for (GameServerClient client : clients)
+        {
+            if(client.getId() != this.getId())
+            {
+                client.send(GameNetworkCodes.PLAYER_ADD.ordinal()+"|"+pTmp.toString());
+            }
+        }
+    }
+
+    public void rem(List<GameServerClient> clients, int clientId)
+    {
+        for (GameServerClient client : clients)
+        {
+            if(client.getId() != this.getId())
+            {
+                client.send(GameNetworkCodes.PLAYER_REMOVE.ordinal()+"|"+clientId);
+            }
+        }
+    }
+
+    public boolean isClosed()
+    {
+        return this.client.isClosed();
     }
 }

@@ -101,6 +101,19 @@ public class Console {
         System.out.print(Color.RESET);
     }
 
+    public static void process(String message)
+    {
+        if (active) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+
+            reset();
+            color(Color.BLUE_BRIGHT);
+            System.out.print("\r[" + dtf.format(now) + "] "+message);
+            reset();
+        }
+    }
+
     public static void log(String message) {
         if (active) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
