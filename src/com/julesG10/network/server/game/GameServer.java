@@ -1,6 +1,7 @@
 package com.julesG10.network.server.game;
 
 import com.julesG10.network.server.Server;
+import com.julesG10.network.server.ServerClient;
 import com.julesG10.utils.Console;
 
 import java.io.IOException;
@@ -12,7 +13,6 @@ import java.util.List;
 
 public class GameServer extends Server {
 
-    List<GameServerClient> clients = new ArrayList<>();
     public int clientId=0;
 
     public GameServer(boolean isPublic, int port) {
@@ -50,7 +50,7 @@ public class GameServer extends Server {
                 client.id =  this.clientId++;
                 this.newClient();
 
-                clients.add(client);
+                clientList.add(client);
                 client.start();
                 Console.log("Open Thread "+client.getName()+"/"+client.getId());
 
@@ -65,36 +65,36 @@ public class GameServer extends Server {
 
     public void updateClients()
     {
-        for (int i = 0;i<clients.size();i++) {
+        for (int i = 0;i<clientList.size();i++) {
 
-            GameServerClient client = this.clients.get(i);
+            GameServerClient client = (GameServerClient) this.clientList.get(i);
 
             if (client.isClosed()) {
                 Console.log("Close Thread "+client.getName()+"/"+client.getId());
                 int id = client.id;
-                clients.remove(i);
+                clientList.remove(i);
                 i--;
 
                 removeClient(id);
             }else {
-                client.update(clients);
+                client.update(this);
             }
         }
     }
 
     public void newClient()
     {
-        for (GameServerClient client : clients)
-        {
-            client.add(clients, clientId);
+        for (ServerClient serverClient : clientList) {
+            GameServerClient client = (GameServerClient) serverClient;
+            client.add(this, clientId);
         }
     }
 
     public void removeClient(int clientId)
     {
-        for (GameServerClient client : clients)
-        {
-            client.rem(clients,clientId);
+        for (ServerClient serverClient : clientList) {
+            GameServerClient client = (GameServerClient) serverClient;
+            client.rem(this, clientId);
         }
     }
 

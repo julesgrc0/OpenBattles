@@ -22,8 +22,7 @@ public class GameServerClient extends ServerClient {
         super(client);
     }
 
-    public boolean Active()
-    {
+    public boolean Active() {
         return this.client.isConnected() && this.isAlive();
     }
 
@@ -33,7 +32,7 @@ public class GameServerClient extends ServerClient {
 
         Player pTmp = new Player();
         pTmp.id = this.id;
-        this.send(GameNetworkCodes.PLAYER_INIT.ordinal()+"|"+pTmp.toString());
+        this.send(GameNetworkCodes.PLAYER_INIT.ordinal() + "|" + pTmp.toString());
 
         while (this.Active()) {
             String data = this.receive();
@@ -48,73 +47,44 @@ public class GameServerClient extends ServerClient {
     }
 
 
-    private boolean onData(String data)
-    {
-        if(data == null)
-        {
+    private boolean onData(String data) {
+        if (data == null) {
             return false;
         }
 
         String[] parts = data.split("\\|");
         GameNetworkCodes code = GameNetworkCodes.values()[Integer.parseInt(parts[0])];
-        parts = Arrays.copyOfRange(parts,1,parts.length);
+        parts = Arrays.copyOfRange(parts, 1, parts.length);
 
-        if(code == GameNetworkCodes.PLAYER_UPDATE)
-        {
+        if (code == GameNetworkCodes.PLAYER_UPDATE) {
             this.hasUpdate = true;
             this.updateContent = data;
-        }
-        else if(code == GameNetworkCodes.PING)
-        {
-            this.send(GameNetworkCodes.PING.ordinal()+"|"+System.nanoTime());
+        } else if (code == GameNetworkCodes.PING) {
+            this.send(GameNetworkCodes.PING.ordinal() + "|" + System.nanoTime());
         }
         return true;
     }
 
-    public void update(List<GameServerClient> clients)
-    {
-        if(this.hasUpdate && this.updateContent != null)
-        {
-
-            for (GameServerClient client : clients)
-            {
-                if(client.getId() != this.getId())
-                {
-                    client.send(this.updateContent);
-                }
-            }
-
+    public void update(GameServer srv) {
+        if (this.hasUpdate && this.updateContent != null) {
+            srv.sendClients(this.updateContent, this.getId());
             this.hasUpdate = false;
             this.updateContent = null;
         }
     }
 
-    public void add(List<GameServerClient> clients, int clientId)
-    {
+    public void add(GameServer srv, int clientId) {
         Player pTmp = new Player();
         pTmp.id = clientId;
-        for (GameServerClient client : clients)
-        {
-            if(client.getId() != this.getId())
-            {
-                client.send(GameNetworkCodes.PLAYER_ADD.ordinal()+"|"+pTmp.toString());
-            }
-        }
+
+        srv.sendClients(GameNetworkCodes.PLAYER_ADD.ordinal() + "|" + pTmp.toString(), this.getId());
     }
 
-    public void rem(List<GameServerClient> clients, int clientId)
-    {
-        for (GameServerClient client : clients)
-        {
-            if(client.getId() != this.getId())
-            {
-                client.send(GameNetworkCodes.PLAYER_REMOVE.ordinal()+"|"+clientId);
-            }
-        }
+    public void rem(GameServer srv, int clientId) {
+        srv.sendClients(GameNetworkCodes.PLAYER_REMOVE.ordinal() + "|" + clientId, this.getId());
     }
 
-    public boolean isClosed()
-    {
+    public boolean isClosed() {
         return this.client.isClosed();
     }
 }

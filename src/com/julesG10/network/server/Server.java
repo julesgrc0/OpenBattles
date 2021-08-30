@@ -4,12 +4,16 @@ import com.julesG10.utils.Console;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
     protected int port;
     protected String address;
     protected ServerSocket server;
+    protected List<ServerClient> clientList = new ArrayList<>();
     public boolean active = false;
+
 
     public Server(boolean isPublic, int port) {
         if (isPublic) {
@@ -28,5 +32,21 @@ public class Server {
 
     public boolean start() {
         return false;
+    }
+
+    public boolean sendClients(String data, long senderId)
+    {
+        for (ServerClient client : clientList)
+        {
+            if(client.getId() != senderId)
+            {
+                if(!client.send(data))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
