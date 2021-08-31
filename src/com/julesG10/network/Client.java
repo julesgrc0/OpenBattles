@@ -13,6 +13,8 @@ public class Client {
     public Socket client = new Socket();
     private DataInputStream reader;
     private DataOutputStream writer;
+    private long total = 0;
+    private long start = 0;
 
     public Client(String hostname, int port) {
         this.hostname = hostname;
@@ -24,6 +26,7 @@ public class Client {
             this.client.connect(new InetSocketAddress(this.hostname, this.port), timeout);
             this.reader = new DataInputStream(this.client.getInputStream());
             this.writer = new DataOutputStream(this.client.getOutputStream());
+            this.start = System.currentTimeMillis();
 
             return true;
         } catch (IOException e) {
@@ -42,10 +45,14 @@ public class Client {
         }
     }
 
+    public long getBytePerSecond()
+    {
+        return (this.total/(System.currentTimeMillis() - this.start));
+    }
+
     public String receive() {
         if (this.client.isConnected()) {
             try {
-
                 int character;
                 StringBuilder data = new StringBuilder();
                 while ((character = reader.read()) != -1) {
@@ -54,6 +61,8 @@ public class Client {
                     }
                     data.append((char) character);
                 }
+
+                this.total += data.toString().getBytes().length;
                 return data.toString();
             } catch (IOException e) {
                 Console.log(e.getMessage());

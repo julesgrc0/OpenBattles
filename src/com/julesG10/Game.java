@@ -1,7 +1,5 @@
 package com.julesG10;
 
-import com.julesG10.game.map.BlockType;
-import com.julesG10.game.map.Chunk;
 import com.julesG10.game.map.World;
 import com.julesG10.game.player.Player;
 import com.julesG10.game.player.PlayerClient;
@@ -10,9 +8,8 @@ import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Console;
 import com.julesG10.utils.Timer;
-import com.julesG10.utils.Vector2;
+
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -81,11 +78,15 @@ public class Game extends Thread {
             }
 
             this.updateMove(deltatime);
+
+            //  System.out.print("\r"+this.client.getBytePerSecond()+" B/s");
         }
     }
 
     public void onData(String data)
     {
+
+
         String[] parts = data.split("\\|");
         GameNetworkCodes code = GameNetworkCodes.values()[Integer.parseInt(parts[0])];
         parts = Arrays.copyOfRange(parts,1,parts.length);
