@@ -27,16 +27,12 @@ public class Player {
         return builder.toString();
     }
 
-    public void setString(String str)
-    {
+    public void setString(String str) {
         String[] parts = str.split("\\|");
-        if(parts.length == 5)
-        {
-            this.id = Integer.parseInt(parts[0]);
-            this.position.x = Float.parseFloat(parts[1]);
-            this.position.y = Float.parseFloat(parts[2]);
-            this.life = Integer.parseInt(parts[3]);
-        }
+        this.id = Integer.parseInt(parts[0]);
+        this.position.x = Float.parseFloat(parts[1]);
+        this.position.y = Float.parseFloat(parts[2]);
+        this.life = Integer.parseInt(parts[3]);
     }
 
 

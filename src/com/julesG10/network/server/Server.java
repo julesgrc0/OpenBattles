@@ -2,16 +2,18 @@ package com.julesG10.network.server;
 
 import com.julesG10.utils.Console;
 
-import java.io.*;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Server {
+
+public class Server<T extends ServerClient> {
     protected int port;
     protected String address;
     protected ServerSocket server;
-    protected List<ServerClient> clientList = new ArrayList<>();
+    protected List<T> clientList = new ArrayList<>();
     public boolean active = false;
 
 
@@ -34,14 +36,24 @@ public class Server {
         return false;
     }
 
-    public boolean sendClients(String data, long senderId)
+    public boolean sendClients(String data) {
+        for (T client : clientList) {
+
+            if (!client.send(data)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean sendClientIf(SendIf<T> condition,String data)
     {
-        for (ServerClient client : clientList)
-        {
-            if(client.getId() != senderId)
+        for (T client : clientList) {
+
+            if(condition.sendIf(client))
             {
-                if(!client.send(data))
-                {
+                if (!client.send(data)) {
                     return false;
                 }
             }

@@ -67,24 +67,35 @@ public class GameServerClient extends ServerClient {
 
     public void update(GameServer srv) {
         if (this.hasUpdate && this.updateContent != null) {
-            srv.sendClients(this.updateContent, this.getId());
+            srv.sendClients(this.updateContent);
             this.hasUpdate = false;
             this.updateContent = null;
         }
     }
 
+
     public void add(GameServer srv, int clientId) {
         Player pTmp = new Player();
         pTmp.id = clientId;
 
-        srv.sendClients(GameNetworkCodes.PLAYER_ADD.ordinal() + "|" + pTmp.toString(), this.getId());
+        /*srv.sendClientIf((GameServerClient c)->{
+            if(c.id != clientId)
+            {
+                return true;
+            }else{
+                return false;
+            }
+        },GameNetworkCodes.PLAYER_ADD.ordinal() + "|" + pTmp.toString());*/
+
+        srv.sendClients(GameNetworkCodes.PLAYER_ADD.ordinal() + "|" + pTmp.toString());
     }
 
     public void rem(GameServer srv, int clientId) {
-        srv.sendClients(GameNetworkCodes.PLAYER_REMOVE.ordinal() + "|" + clientId, this.getId());
+        srv.sendClients(GameNetworkCodes.PLAYER_REMOVE.ordinal() + "|" + clientId);
     }
 
     public boolean isClosed() {
         return this.client.isClosed();
     }
+
 }

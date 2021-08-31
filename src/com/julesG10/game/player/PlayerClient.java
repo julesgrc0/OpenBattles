@@ -47,11 +47,17 @@ public class PlayerClient {
                 player.textures = this.world.players.get(0).textures;
                 player.texture = this.world.players.get(0).texture;
                 player.setString(String.join("|",parts));
+
+                this.world.players.add(player);
             }
         }
         else if(code == GameNetworkCodes.PLAYER_ADD)
         {
             int id = Integer.parseInt(parts[0]);
+            if(id == this.world.players.get(0).id)
+            {
+                return;
+            }
 
             boolean find = false;
             for (Player p : this.world.players)
@@ -69,6 +75,8 @@ public class PlayerClient {
                 player.textures = this.world.players.get(0).textures;
                 player.texture = this.world.players.get(0).texture;
                 player.setString(String.join("|",parts));
+
+                this.world.players.add(player);
             }
         }
         else if(code == GameNetworkCodes.PLAYER_REMOVE)

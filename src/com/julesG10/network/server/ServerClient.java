@@ -22,7 +22,7 @@ public class ServerClient extends Thread {
         }
     }
 
-    protected boolean send(String data) {
+    public boolean send(String data) {
         try {
             writer.writeBytes(data);
             writer.write(0);
@@ -45,7 +45,7 @@ public class ServerClient extends Thread {
         }
     }
 
-    protected String receive() {
+    public String receive() {
         try {
 
             int character;

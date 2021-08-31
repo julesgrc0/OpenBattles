@@ -9,14 +9,16 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class GameServer extends Server {
+public class GameServer extends Server<GameServerClient> {
 
     public int clientId=0;
 
     public GameServer(boolean isPublic, int port) {
         super(isPublic, port);
+        this.clientList =  Collections.synchronizedList(new ArrayList<>());
     }
 
     @Override
@@ -27,6 +29,7 @@ public class GameServer extends Server {
         try {
             InetSocketAddress inetSocketAddress = new InetSocketAddress(this.address, this.port);
             server = new ServerSocket(inetSocketAddress.getPort(), 50, inetSocketAddress.getAddress());
+
         } catch (IOException ignored) {
             return false;
         }
@@ -34,24 +37,24 @@ public class GameServer extends Server {
         Console.log("Server socket is running  " + server.getLocalSocketAddress());
 
         Thread updateThread = new Thread(() -> {
-            while (active)
+            while (this.active)
             {
-                updateClients();
+                this.updateClients();
             }
         });
 
         updateThread.start();
 
+
         while (this.active) {
             try {
                 Socket socket = server.accept();
-
                 GameServerClient client = new GameServerClient(socket);
                 client.id =  this.clientId++;
-                this.newClient();
+                //this.newClient();
 
                 clientList.add(client);
-                client.start();
+                clientList.get(clientList.size()-1).start();
                 Console.log("Open Thread "+client.getName()+"/"+client.getId());
 
                 Console.log("New Client");
@@ -65,9 +68,10 @@ public class GameServer extends Server {
 
     public void updateClients()
     {
+        System.out.print("\r "+this.clientList.size());
         for (int i = 0;i<clientList.size();i++) {
 
-            GameServerClient client = (GameServerClient) this.clientList.get(i);
+            GameServerClient client = this.clientList.get(i);
 
             if (client.isClosed()) {
                 Console.log("Close Thread "+client.getName()+"/"+client.getId());
@@ -75,7 +79,7 @@ public class GameServer extends Server {
                 clientList.remove(i);
                 i--;
 
-                removeClient(id);
+                this.removeClient(id);
             }else {
                 client.update(this);
             }
@@ -84,16 +88,14 @@ public class GameServer extends Server {
 
     public void newClient()
     {
-        for (ServerClient serverClient : clientList) {
-            GameServerClient client = (GameServerClient) serverClient;
+        for (GameServerClient client : clientList) {
             client.add(this, clientId);
         }
     }
 
     public void removeClient(int clientId)
     {
-        for (ServerClient serverClient : clientList) {
-            GameServerClient client = (GameServerClient) serverClient;
+        for (GameServerClient client : clientList) {
             client.rem(this, clientId);
         }
     }
