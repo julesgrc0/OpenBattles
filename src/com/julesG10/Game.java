@@ -1,15 +1,20 @@
 package com.julesG10;
 
+import com.julesG10.game.ClientManager;
+import com.julesG10.game.map.ChunkClient;
 import com.julesG10.game.map.World;
 import com.julesG10.game.player.Player;
 import com.julesG10.game.player.PlayerClient;
 import com.julesG10.game.player.PlayerDirection;
+import com.julesG10.graphics.Texture;
+import com.julesG10.graphics.TextureClient;
 import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Console;
 import com.julesG10.utils.Timer;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -20,7 +25,7 @@ public class Game extends Thread {
     private boolean clientActive = true;
     public Client client;
     public World world;
-    private PlayerClient pClient;
+    private List<ClientManager> clientManagerList;
 
     public Game(long window, World world, Client client) {
         super();
@@ -49,7 +54,10 @@ public class Game extends Thread {
         }
         Console.log("Client connected");
 
-        pClient = new PlayerClient(this.world,this.client);
+        clientManagerList.add(new PlayerClient(this.world,this.client));
+        clientManagerList.add(new ChunkClient(this.world,this.client));
+        //clientManagerList.add(new TextureClient(,this.client));
+
         Thread clientThread = new Thread(() -> {
             while (clientActive) {
                 String data = client.receive();
@@ -91,7 +99,13 @@ public class Game extends Thread {
         GameNetworkCodes code = GameNetworkCodes.values()[Integer.parseInt(parts[0])];
         parts = Arrays.copyOfRange(parts,1,parts.length);
 
-        this.pClient.onData(code,parts);
+        for(ClientManager tClientManager : clientManagerList)
+        {
+            if(tClientManager.onData(code,parts))
+            {
+                break;
+            }
+        }
 
         if(code == GameNetworkCodes.PING)
         {

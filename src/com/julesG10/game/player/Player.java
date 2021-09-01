@@ -24,6 +24,8 @@ public class Player {
         builder.append(position.y);
         builder.append("|");
         builder.append(life);
+        builder.append("|");
+        builder.append(this.direction.ordinal());
         return builder.toString();
     }
 
@@ -33,6 +35,7 @@ public class Player {
         this.position.x = Float.parseFloat(parts[1]);
         this.position.y = Float.parseFloat(parts[2]);
         this.life = Integer.parseInt(parts[3]);
+        this.direction = PlayerDirection.values()[Integer.parseInt(parts[4])];
     }
 
 

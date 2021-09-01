@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
@@ -18,6 +19,44 @@ public class Texture {
     private int id;
     private ByteBuffer pixels;
     private boolean valid = false;
+
+    public Texture()
+    {
+
+    }
+
+    public void setString(String pixels,Size size)
+    {
+        this.pixels = StandardCharsets.UTF_8.encode(pixels);
+        this.size = size;
+        this.id = glGenTextures();
+        this.bind();
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.size.width, this.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                this.pixels);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        this.unbind();
+        this.valid = true;
+    }
+
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.size.width);
+        builder.append("|");
+        builder.append(this.size.height);
+        builder.append("|");
+        builder.append(StandardCharsets.UTF_8.decode(pixels));
+
+        return builder.toString();
+    }
 
     public Texture(String path) {
         BufferedImage buffer;
