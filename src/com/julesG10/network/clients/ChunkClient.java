@@ -1,6 +1,10 @@
-package com.julesG10.game.map;
+package com.julesG10.network.clients;
 
 import com.julesG10.game.ClientManager;
+import com.julesG10.game.map.Block;
+import com.julesG10.game.map.BlockType;
+import com.julesG10.game.map.Chunk;
+import com.julesG10.game.map.World;
 import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Vector2;

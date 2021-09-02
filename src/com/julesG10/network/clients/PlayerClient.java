@@ -1,7 +1,8 @@
-package com.julesG10.game.player;
+package com.julesG10.network.clients;
 
 import com.julesG10.game.ClientManager;
 import com.julesG10.game.map.World;
+import com.julesG10.game.player.Player;
 import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Vector2;

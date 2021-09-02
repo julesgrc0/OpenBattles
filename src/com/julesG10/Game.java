@@ -1,18 +1,17 @@
 package com.julesG10;
 
 import com.julesG10.game.ClientManager;
-import com.julesG10.game.map.ChunkClient;
+import com.julesG10.network.clients.ChunkClient;
 import com.julesG10.game.map.World;
 import com.julesG10.game.player.Player;
-import com.julesG10.game.player.PlayerClient;
+import com.julesG10.network.clients.PlayerClient;
 import com.julesG10.game.player.PlayerDirection;
-import com.julesG10.graphics.Texture;
-import com.julesG10.graphics.TextureClient;
 import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Console;
 import com.julesG10.utils.Timer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class Game extends Thread {
     private boolean clientActive = true;
     public Client client;
     public World world;
-    private List<ClientManager> clientManagerList;
+    private List<ClientManager> clientManagerList = new ArrayList<>();
 
     public Game(long window, World world, Client client) {
         super();

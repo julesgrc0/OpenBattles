@@ -28,8 +28,8 @@ public class World {
     public void render() {
         if (this.camera.active) {
             for (int i = 0; i < this.chunks.size(); i++) {
-                if (this.camera.isInView(this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width),
-                        Chunk.size.mult(Block.size))) {
+                if (this.camera.isInView(this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width), Chunk.size.mult(Block.size)))
+                {
                     for (Block block : this.chunks.get(i).blocks) {
                         block.render(this.camera,
                                 this.chunks.get(i).position.mult(Block.size.width * Chunk.size.width));
@@ -40,7 +40,8 @@ public class World {
             Object[] objs = this.players.toArray();
             for (Object obj : objs) {
                 Player p = (Player) obj;
-                if (this.camera.isInView(p.position.add(this.camera.position), Player.size)) {
+                if (this.camera.isInView(p.position.add(this.camera.position), Player.size))
+                {
                     p.render(this.camera);
                 }
             }

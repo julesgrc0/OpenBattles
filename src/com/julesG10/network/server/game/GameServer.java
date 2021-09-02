@@ -68,7 +68,6 @@ public class GameServer extends Server<GameServerClient> {
 
     public void updateClients()
     {
-        System.out.print("\r "+this.clientList.size());
         for (int i = 0;i<clientList.size();i++) {
 
             GameServerClient client = this.clientList.get(i);

@@ -1,6 +1,7 @@
-package com.julesG10.graphics;
+package com.julesG10.network.clients;
 
 import com.julesG10.game.ClientManager;
+import com.julesG10.graphics.Texture;
 import com.julesG10.network.Client;
 import com.julesG10.network.GameNetworkCodes;
 import com.julesG10.utils.Size;

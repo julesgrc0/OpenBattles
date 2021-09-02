@@ -183,13 +183,13 @@ public class Main {
     }
 
     private void initGame() {
-        Block.size = new Size(size.width / 10, size.height / 10);
+        Block.size = new Size(200,200);
         Player.size = Block.size;
 
         this.world = new World();
         this.gameClient = new Client(this.clientAddress, this.clientPort);
         world.addPlayer(new Player());
-        world.camera = new Camera(new Vector2(0, 0), size);
+        world.camera = new Camera(new Vector2(0, 0), Block.size.mult(10));
 
         // player textures
         String[] playerAnimations = { "left", "right", "top", "bottom" };
@@ -219,11 +219,11 @@ public class Main {
     private void loop() {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glViewport(0, 0, this.size.width, this.size.height);
+        glViewport(0, 0, size.width,size.height);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
-        glOrtho(0, this.size.width, this.size.height, 0, 1, -1);
+        glOrtho(0, size.width,size.height, 0, 1, -1);
         glMatrixMode(GL_MODELVIEW);
 
         if (!glIsEnabled(GL_BLEND)) {
