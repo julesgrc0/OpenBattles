@@ -12,6 +12,7 @@ import javax.sound.sampled.Clip;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,4 +65,32 @@ public class AssetsManager {
         }
         return soundList.toArray(new Sound[0]);
     }
+
+    private static List<Texture> textures;
+
+    public static int registerTexture(Texture texture)
+    {
+        textures.add(texture);
+        return textures.size();
+    }
+
+    public static int[] registerTextures(Texture[] texture)
+    {
+        textures.addAll(Arrays.stream(texture).toList());
+        
+        int[] ids = new int[texture.length];
+        for (int i=0;i<texture.length;i++)
+        {
+            ids[i] = textures.size() - i;
+        }
+
+        return ids;
+    }
+
+    public static Texture getTexture(int id)
+    {
+        return textures.get(id);
+    }
+
+
 }

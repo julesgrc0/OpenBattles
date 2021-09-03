@@ -7,13 +7,18 @@ import com.julesG10.utils.Size;
 import com.julesG10.utils.Vector2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Player {
+
+    private Inventory inventory = new Inventory();
+
     public Player() {
 
 
     }
+
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
@@ -26,6 +31,8 @@ public class Player {
         builder.append(life);
         builder.append("|");
         builder.append(this.direction.ordinal());
+        builder.append("|");
+        builder.append(inventory.toString());
         return builder.toString();
     }
 
@@ -36,6 +43,9 @@ public class Player {
         this.position.y = Float.parseFloat(parts[2]);
         this.life = Integer.parseInt(parts[3]);
         this.direction = PlayerDirection.values()[Integer.parseInt(parts[4])];
+
+        parts = Arrays.copyOfRange(parts,4,parts.length);
+        this.inventory.fromString(String.join("|", parts));
     }
 
 
