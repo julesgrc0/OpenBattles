@@ -51,11 +51,11 @@ public class Block {
 
     public void update(float deltatime,boolean player)
     {
-            if (this.texture_index+1 >= this.textures.length) {
-                this.texture_index = 0;
-            }
-            else{
-                this.texture_index++;
-            }
+        if (this.texture_index+1 >= this.textures.length) {
+            this.texture_index = 0;
+        }
+        else{
+            this.texture_index++;
+        }
     }
 }
