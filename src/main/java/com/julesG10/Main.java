@@ -1,10 +1,7 @@
 package com.julesG10;
 
 import com.julesG10.game.*;
-import com.julesG10.game.map.Block;
-import com.julesG10.game.map.Chunk;
-import com.julesG10.game.map.World;
-import com.julesG10.game.map.WorldLoader;
+import com.julesG10.game.map.*;
 import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Texture;
 import com.julesG10.network.Client;
@@ -182,7 +179,7 @@ public class Main {
         return true;
     }
 
-    private void initGame() {
+    private boolean initGame() {
         Block.size = new Size(200,200);
         Player.size = Block.size;
 
@@ -197,23 +194,46 @@ public class Main {
             Texture[] t = AssetsManager.loadTextureDirectory("player" + File.separator + playerAnimations[i]).clone();
             world.players.get(0).textures.add(t);
         }
+
+        if(world.players.get(0).textures.size() == 0 || world.players.get(0).textures.get(0).length == 0)
+        {
+            return false;
+        }
         world.players.get(0).texture = world.players.get(0).textures.get(0)[0];
 
         // world setup
+
+        List<Pair<BlockType,Texture[]>> blockTextures = new ArrayList<>();
+        for (String strBlock : Block.blockNames)
+        {
+            Pair<BlockType,Texture[]> p = new Pair<>(
+                    Block.getTypeFromName(strBlock),
+                    AssetsManager.loadTextureDirectory("blocks" + File.separator +strBlock).clone()
+            );
+
+            if(p.getValue().length == 0)
+            {
+                return false;
+            }
+            blockTextures.add(p);
+        }
+
         List<Chunk> chunkList = new ArrayList<>();
         Chunk chunk = new Chunk(new Vector2(0, 0));
-        Texture[] blockTextures = { new Texture(AssetsManager.assetsPath + File.separator + "block.png") };
 
         for (int x = 0; x < Chunk.size.width; x++) {
             for (int y = 0; y < Chunk.size.height; y++) {
                 Block block = new Block();
                 block.position = new Vector2(x * Block.size.width, y * Block.size.height);
-                block.textures = blockTextures.clone();
+                block.textures = blockTextures.get(0).getValue();
                 chunk.blocks[x * Chunk.size.width + y] = block;
             }
         }
+
         chunkList.add(chunk);
         world.chunks = chunkList;
+
+        return true;
     }
 
     private void loop() {
@@ -235,7 +255,10 @@ public class Main {
             glEnable(GL_TEXTURE_2D);
         }
 
-        this.initGame();
+        if(!this.initGame())
+        {
+            return;
+        }
 
         Game game = new Game(this.window, this.world, this.gameClient);
         game.start();
