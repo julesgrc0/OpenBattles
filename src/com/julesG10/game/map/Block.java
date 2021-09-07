@@ -33,6 +33,7 @@ public class Block {
 
     public BlockType type;
     public Vector2 position;
+    public boolean collision = false;
 
     public int texture_index;
     public Texture[] textures;
@@ -51,11 +52,23 @@ public class Block {
 
     public void update(float deltatime,boolean player)
     {
-        if (this.texture_index+1 >= this.textures.length) {
-            this.texture_index = 0;
+            if (this.texture_index+1 >= this.textures.length) {
+                this.texture_index = 0;
+            }
+            else{
+                this.texture_index++;
+            }
+    }
+
+    public boolean aabbCollision(Vector2 blockPosition,Vector2 position,Size size)
+    {
+        if (position.x < blockPosition.x + Block.size.width &&
+                position.x + size.width > blockPosition.x &&
+                position.y < blockPosition.y + Block.size.height &&
+                size.height + position.y > blockPosition.y)
+        {
+           return true;
         }
-        else{
-            this.texture_index++;
-        }
+        return false;
     }
 }

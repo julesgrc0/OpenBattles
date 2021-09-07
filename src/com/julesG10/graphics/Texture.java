@@ -20,6 +20,13 @@ public class Texture {
     private ByteBuffer pixels;
     private boolean valid = false;
 
+    private float[] vertices = new float[] {
+            -1,-1,0,
+            0,1,1,
+            1,-1,0
+    };
+   // private Model model = new Model(vertices);
+
     public Texture()
     {
 
@@ -86,6 +93,7 @@ public class Texture {
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -132,7 +140,9 @@ public class Texture {
             glPopMatrix();
 
             this.unbind();
+
         }
+
     }
 
     public Size getSize() {

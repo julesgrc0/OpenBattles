@@ -80,6 +80,8 @@ public class Game extends Thread {
         this.client.send(GameNetworkCodes.PING.ordinal()+"|");
 
         Timer timer = new Timer();
+        boolean wasMove = false;
+
         while (!glfwWindowShouldClose(window)) {
             float deltatime = timer.restart();
             glfwPollEvents();
@@ -89,10 +91,8 @@ public class Game extends Thread {
                 break;
             }
 
-            if(this.updateMove(deltatime))
-            {
-                this.updateBlock(deltatime);
-            }
+            this.updateMove(deltatime);
+            this.updateBlock(deltatime);
 
             //  System.out.print("\r"+this.client.getBytePerSecond()+" B/s");
         }
@@ -130,10 +130,11 @@ public class Game extends Thread {
             if(this.isInChunk(p_pos,this.currentChunk.position))
             {
                 for (Block b : currentChunk.blocks) {
+                    boolean player = false;
                     if (b.position.add(currentChunk.position.mult(Block.size.toVector2())).equal(p_pos)) {
-                        b.update(deltatime, true);
-                        break;
+                        player = true;
                     }
+                    b.update(deltatime, player);
                 }
 
                 return;
@@ -145,14 +146,32 @@ public class Game extends Thread {
             if (this.isInChunk(p_pos, c_pos)) {
                 this.currentChunk = c;
                 for (Block b : c.blocks) {
+                    boolean player = false;
                     if (b.position.add(c.position.mult(Block.size.toVector2())).equal(p_pos)) {
-                        b.update(deltatime, true);
-                        break;
+                        player = true;
                     }
+                    b.update(deltatime, player);
                 }
                 break;
             }
         }
+    }
+
+    public boolean testCollision(Vector2 playerPos) {
+        if (this.currentChunk != null) {
+            for (Block b : currentChunk.blocks) {
+                if (b.collision) {
+                    Vector2 bPos = b.position.add(currentChunk.position.mult(Block.size.toVector2()));
+                    if(b.aabbCollision(bPos,playerPos,Player.size))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+        }
+
+        return false;
     }
 
     public boolean isInChunk(Vector2 playerPos,Vector2 c_pos)
@@ -173,62 +192,79 @@ public class Game extends Thread {
         float move = 0;
         boolean hasMove = false;
         Player player = this.world.players.get(0);
+        Vector2 vec = new Vector2(player.position.x,player.position.y);
 
         if (glfwGetKey(this.window, GLFW_KEY_RIGHT) == GLFW_TRUE) {
 
             // this.world.camera.position.x -= add;
-            player.position.x += add;
+            vec.x += add;
             player.changeDirection(PlayerDirection.RIGHT);
             move = add;
             hasMove = true;
         } else if (glfwGetKey(this.window, GLFW_KEY_LEFT) == GLFW_TRUE) {
 
             // this.world.camera.position.x += add;
-            player.position.x -= add;
+            vec.x -= add;
             player.changeDirection(PlayerDirection.LEFT);
             move = -add;
             hasMove = true;
         }
 
+        if(!this.testCollision(vec))
+        {
+            player.position = vec;
+        }else {
+            vec.x = player.position.x;
+        }
+
         if (glfwGetKey(this.window, GLFW_KEY_DOWN) == GLFW_TRUE) {
             if (move != 0) {
-                player.position.x -= move / 2;
+                vec.x -= move / 2;
                 // this.world.camera.position.x -= -move/2;
                 add /= 2;
             }
             // this.world.camera.position.y -= add;
-            player.position.y += add;
+            vec.y += add;
             player.changeDirection(PlayerDirection.BOTTOM);
             hasMove = true;
         } else if (glfwGetKey(this.window, GLFW_KEY_UP) == GLFW_TRUE) {
             if (move != 0) {
-                player.position.x -= move / 2;
+                vec.x -= move / 2;
                 // this.world.camera.position.x -= -move/2;
                 add /= 2;
 
             }
             // this.world.camera.position.y += add;
-            player.position.y -= add;
+            vec.y -= add;
             player.changeDirection(PlayerDirection.TOP);
             hasMove = true;
         }
 
-        if (this.world.camera.position.x + this.world.players.get(0).position.x != (Main.size.width - Player.size.width) / 2) {
-            this.world.camera.position.x = (Main.size.width - Player.size.width) / 2
-                    - this.world.players.get(0).position.x;
+        if(!this.testCollision(vec))
+        {
+            player.position = vec;
+        }else {
+            vec.y = player.position.y;
         }
 
-        if (this.world.camera.position.y
-                + this.world.players.get(0).position.y != (Main.size.height - Player.size.height) / 2) {
-            this.world.camera.position.y = (Main.size.height - Player.size.height) / 2
-                    - this.world.players.get(0).position.y;
-        }
 
-        if (hasMove) {
-            player.update(deltatime);
-            this.client.send(GameNetworkCodes.PLAYER_UPDATE.ordinal()+"|"+player.toString());
-            return true;
-        }
+            if (this.world.camera.position.x + this.world.players.get(0).position.x != (Main.size.width - Player.size.width) / 2) {
+                this.world.camera.position.x = (Main.size.width - Player.size.width) / 2
+                        - this.world.players.get(0).position.x;
+            }
+
+            if (this.world.camera.position.y
+                    + this.world.players.get(0).position.y != (Main.size.height - Player.size.height) / 2) {
+                this.world.camera.position.y = (Main.size.height - Player.size.height) / 2
+                        - this.world.players.get(0).position.y;
+            }
+
+            if (hasMove) {
+                player.update(deltatime);
+                this.client.send(GameNetworkCodes.PLAYER_UPDATE.ordinal()+"|"+player.toString());
+                return true;
+            }
+
 
         return false;
     }

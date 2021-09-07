@@ -3,6 +3,7 @@ package com.julesG10;
 import com.julesG10.game.*;
 import com.julesG10.game.map.*;
 import com.julesG10.game.player.Player;
+import com.julesG10.graphics.Model;
 import com.julesG10.graphics.Texture;
 import com.julesG10.network.Client;
 import com.julesG10.network.server.game.GameServer;
@@ -38,12 +39,12 @@ public class Main {
     private boolean fullscreen = true;
 
     private boolean clientMode = true;
-    private String clientAddress;
-    private int clientPort;
+    private String clientAddress = "127.0.0.1";
+    private int clientPort = 0;
 
     private boolean serverMode = false;
     private boolean publicServer = false;
-    private int serverPort;
+    private int serverPort = 0;
 
     private boolean consoleMode = false;
     private boolean debugConsole = false;
@@ -239,11 +240,12 @@ public class Main {
     private void loop() {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glViewport(0, 0, size.width,size.height);
+
+        glViewport(0, 0, size.width, size.height);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
 
-        glOrtho(0, size.width,size.height, 0, 1, -1);
+        //glOrtho(0, size.width,size.height, 0, 1, -1);
         glMatrixMode(GL_MODELVIEW);
 
         if (!glIsEnabled(GL_BLEND)) {
@@ -255,8 +257,7 @@ public class Main {
             glEnable(GL_TEXTURE_2D);
         }
 
-        if(!this.initGame())
-        {
+        if (!this.initGame()) {
             return;
         }
 
@@ -264,12 +265,40 @@ public class Main {
         game.start();
 
         Timer timer = new Timer();
+
+        float[] vertices = new float[]{
+                -0.5f,  0.5f,  0,
+                 0.5f,  0.5f,  0,
+                 0.5f, -0.5f,  0,
+                -0.5f, -0.5f,  0,
+        };
+
+        float[] texture = new float[]{
+                0, 0,
+                1, 0,
+                1, 1,
+                0, 1,
+        };
+        int[] indices = new int[]
+                {
+                        0, 1, 2,
+                        2, 3, 0
+                };
+
+        Model model = new Model(vertices, texture, indices);
+        Texture grass = new Texture(AssetsManager.assetsPath + File.separator + "player" + File.separator + "left" + File.separator + "sprite_2.png");
+
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             float deltatime = timer.restart();
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            this.world.render();
+
+            grass.bind();
+            model.render();
+
+
+            //this.world.render();
 
             // Vector2 b =
             // game.getPositionItemCamera(game.mousePosition(),world.players.get(0).position,world.camera.position,Main.size.toVector2().div(2),Block.size);
