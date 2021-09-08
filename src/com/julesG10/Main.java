@@ -294,6 +294,7 @@ public class Main {
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
             grass.bind();
             model.render();
 
