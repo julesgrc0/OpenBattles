@@ -4,6 +4,7 @@ import com.julesG10.game.*;
 import com.julesG10.game.map.*;
 import com.julesG10.game.player.Player;
 import com.julesG10.graphics.Model;
+import com.julesG10.graphics.Shader;
 import com.julesG10.graphics.Texture;
 import com.julesG10.network.Client;
 import com.julesG10.network.server.game.GameServer;
@@ -288,6 +289,13 @@ public class Main {
         Model model = new Model(vertices, texture, indices);
         Texture grass = new Texture(AssetsManager.assetsPath + File.separator + "player" + File.separator + "left" + File.separator + "sprite_2.png");
 
+        String shaderDir = AssetsManager.assetsPath + File.separator + "shaders" + File.separator;
+        Shader shader = new Shader(shaderDir+"vertex.glsl",shaderDir+"fragment.glsl");
+        if(!shader.isValid())
+        {
+
+        }
+
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             float deltatime = timer.restart();
@@ -295,7 +303,8 @@ public class Main {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-            grass.bind();
+            //grass.bind();
+            shader.bind();
             model.render();
 
 

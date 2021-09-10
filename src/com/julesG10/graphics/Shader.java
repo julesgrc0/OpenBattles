@@ -1,8 +1,9 @@
 package com.julesG10.graphics;
 
+import com.julesG10.utils.Console;
 import org.lwjgl.BufferUtils;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,67 +11,90 @@ import java.nio.file.Path;
 import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
-    private int id;
+    private int program;
+    private int vertexShader;
+    private int fragmentShader;
+    private boolean valid = true;
 
 
-    public static String load(String path)
-    {
-        if(path.endsWith(".glsl") || path.endsWith(".vert") || path.endsWith(".frag"))
-        {
-            try {
-                return  Files.readAllLines(Path.of(path)).toString();
-            } catch (IOException ignored) {}
+    public String load(String path) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            StringBuilder builder = new StringBuilder();
+
+            String line;
+            while((line = reader.readLine()) != null)
+            {
+                builder.append(line).append('\n');
+            }
+            reader.close();
+            return builder.toString();
+        } catch (IOException e) {
+            Console.log(e.getMessage());
         }
+
         return null;
     }
 
-    public Shader(String vertexSource,String fragmentSource)
+    public Shader(String vertexPath,String fragmentPath)
     {
-        int vertexShader = createShader(GL_VERTEX_SHADER, vertexSource);
-        int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentSource);
-        if(vertexShader == -1 || fragmentShader == -1)
+        this.program = glCreateProgram();
+
+        this.vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(this.vertexShader,this.load(vertexPath));
+        glCompileShader(this.vertexShader);
+
+        if(glGetShaderi(this.vertexShader,GL_COMPILE_STATUS) != GL_TRUE)
         {
-            return;
+            Console.log(glGetShaderInfoLog(this.vertexShader));
+            this.valid = false;
         }
 
-        id = glCreateProgram();
-        glAttachShader(id, vertexShader);
-        glAttachShader(id, fragmentShader);
+        this.fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(this.fragmentShader,this.load(fragmentPath));
+        glCompileShader(this.fragmentShader);
 
-        glLinkProgram(id);
-        int comp = glGetProgrami(id, GL_LINK_STATUS);
-        if(comp == GL_FALSE)
+        if(glGetShaderi(this.fragmentShader,GL_COMPILE_STATUS) != GL_TRUE)
         {
-            return;
+            Console.log(glGetShaderInfoLog(this.fragmentShader));
+            this.valid = false;
         }
-        /*glDetachShader(id, vertexShader);
-        glDetachShader(id, fragmentShader);
 
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-        */
+        glAttachShader(this.program,this.vertexShader);
+        glAttachShader(this.program,this.fragmentShader);
+
+        glBindAttribLocation(this.program, 0 ,"vertices");
+
+        glLinkProgram(this.program);
+        if(glGetProgrami(this.program,GL_LINK_STATUS) != GL_TRUE)
+        {
+            Console.log(glGetProgramInfoLog(this.program));
+            this.valid = false;
+        }
+        glValidateProgram(this.program);
+        if(glGetProgrami(this.program,GL_VALIDATE_STATUS) != GL_TRUE)
+        {
+            Console.log(glGetProgramInfoLog(this.program));
+            this.valid = false;
+        }
     }
 
-
-    private int createShader(int type,String source)
+    public void setUniform(String name,int value)
     {
-        int shader = glCreateShader(type);
-
-        if (shader == 0)
+        int location = glGetUniformLocation(this.program,name);
+        if(location != -1)
         {
-            return -1;
+            glUniform1i(location,value);
         }
+    }
 
-        glShaderSource(shader, source);
-        glCompileShader(shader);
+    public void bind()
+    {
+        glUseProgram(this.program);
+    }
 
-        int comp = glGetShaderi(shader, GL_COMPILE_STATUS);
-
-        if (comp == GL_FALSE)
-        {
-            return -1;
-        }
-
-        return shader;
+    public boolean isValid()
+    {
+        return this.valid;
     }
 }

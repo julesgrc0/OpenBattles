@@ -12,6 +12,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
 import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
 public class Texture {
@@ -106,6 +108,11 @@ public class Texture {
         } catch (IOException ignored) {
             this.valid = false;
         }
+    }
+
+    public void bind(int sampler) {
+        glActiveTexture(GL_TEXTURE0 + sampler);
+        glBindTexture(GL_TEXTURE_2D, this.id);
     }
 
     public void bind() {
